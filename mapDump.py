@@ -3,77 +3,108 @@ import pygame
 from images import *
 
 class mapDump(pygame.sprite.Sprite):
-    def __init__(self,image, x, y):
+    def __init__(self, image, x, y):
         super().__init__()
         self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+    def draw(self, screen, cameraX, cameraY):
+        screenY = self.rect.x - cameraX
+        screenY = self.rect.y - cameraY
+        screen.blit(self.image, (screenY, screenY))
 
 class tileHandle():
-    def __init__(self, filename,):
+    def __init__(self, filename):
         self.filename = filename
-        self.initX, self.initY = 0, 0
+        self.initX = 0
+        self.initY = 0
         self.tileSize = 16
         self.tiles = self.tileDump(self.filename)
-        self.mapSurface= pygame.Surface((self.mapWidth, self.mapHeight))
-        self.mapSurface.set_colorkey((0, 0, 0))  
-        self.mapStore()
-    
-    def mapStore(self):
-        for tile in self.tiles:
-            tile.draw(self.mapSurface)
+        
+    def drawMap(self, screen, cameraX, cameraY, screenWidth, screenHeight):
 
-    def drawMap(self, screen):
-        screen.blit(self.mapSurface, (0,0))
+        if self.tileGrid:
+            tilesWide = len(self.tileGrid[0])
+            tilesHigh = len(self.tileGrid)
+        else:
+            tilesWide = 0
+            tilesHigh = 0
 
-    # Reads the CSV file and returns a 2D list of tiles
+        startX = max(0, int(cameraX // self.tileSize) - 1)
+        endX = min(tilesWide, int((cameraX + screenWidth) // self.tileSize) + 2)
+
+        startY = max(0, int(cameraY // self.tileSize) - 1)
+        endY = min(tilesHigh, int((cameraY + screenHeight) // self.tileSize) + 2)
+        
+        for y in range(startY, endY):
+            for x in range(startX, endX):
+                if self.tileGrid[y][x]: 
+                    tile = self.tileGrid[y][x]
+                    screenX = (x * self.tileSize) - cameraX
+                    screenY = (y * self.tileSize) - cameraY
+                    screen.blit(tile.image, (screenX, screenY))
+
     def readCSV(self, filename):
-        map = []
+        mapArray = []
         try:
             with open(filename, newline='') as csvScan:
                 csv_reader = csv.reader(csvScan, delimiter=',')
                 for row in csv_reader:
-                    map.append(list(row))
-            return map
+                    mapArray.append(list(row))
+            return mapArray
         except FileNotFoundError:
-            print(f"Error: The file {filename} was not found.")
+            print("Error with finding file!")
             return []
         
-    
     def tileDump(self, filename):
         tiles = []
-        map = self.readCSV(filename)
-        y, x = 0, 0
- 
-        for row in map:
+        mapArray = self.readCSV(filename)
+        
+        if not mapArray:
+            return tiles
+            
+        # Create a 2D grid of "None", to replaces with tile blocks later 
+        self.tileGrid = []
+        for row in range (len(mapArray)):
+            innerRow = []
+            for col in range (len(mapArray[0])):
+                innerRow.append(None);
+            self.tileGrid.append(innerRow)
+        
+        y = 0
+        for row in mapArray:
             x = 0
-            for tile in row:
-                if tile == '1':
-                    tiles.append(mapDump(imageVault["bushGrass"], x * self.tileSize, y * self.tileSize))
-                elif tile == '2':
-                    tiles.append(mapDump(imageVault["grass"], x * self.tileSize, y * self.tileSize))
-                elif tile == '3':
-                    tiles.append(mapDump(imageVault["treeTop"], x * self.tileSize, y * self.tileSize))
-                elif tile == '4':
-                    tiles.append(mapDump(imageVault["treeBottom"], x * self.tileSize, y * self.tileSize))
-                elif tile == '5':
-                    tiles.append(mapDump(imageVault["seed"], x * self.tileSize, y * self.tileSize))
-                elif tile == '6':
-                    tiles.append(mapDump(imageVault["crabGrass"], x * self.tileSize, y * self.tileSize))
-                elif tile == '7':
-                    tiles.append(mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize))
-                else:
-                    print("Invalid block")
+            for tile_id in row:
+                tileObject = None
+                if tile_id == '1':
+                    tileObject = mapDump(imageVault["bushGrass"], x * self.tileSize, y * self.tileSize)
+                elif tile_id == '2':
+                    tileObject = mapDump(imageVault["grass"], x * self.tileSize, y * self.tileSize)
+                elif tile_id == '3':
+                    tileObject = mapDump(imageVault["treeTop"], x * self.tileSize, y * self.tileSize)
+                elif tile_id == '4':
+                    tileObject = mapDump(imageVault["treeBottom"], x * self.tileSize, y * self.tileSize)
+                elif tile_id == '5':
+                    tileObject = mapDump(imageVault["seed"], x * self.tileSize, y * self.tileSize)
+                elif tile_id == '6':
+                    tileObject = mapDump(imageVault["crabGrass"], x * self.tileSize, y * self.tileSize)
+                elif tile_id == '7':
+                    tileObject = mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize)
+                elif tile_id == '0':
+                    print("Block is not defined!")
+                    pass
+                
+                #Load the image into the tileGrid array, so that it can displayed
+                if tileObject:
+                    tiles.append(tileObject)
+                    self.tileGrid[y][x] = tileObject
+                    
                 x += 1
             y += 1
 
-        #Log the dimensions of the map   
+        # The dimensions of the map   
         self.mapWidth = x * self.tileSize
         self.mapHeight = y * self.tileSize
         return tiles
-
-

@@ -1,13 +1,13 @@
 import pygame
-import csv
 from mapDump import *
 from Player import *
+from Camera import *
 import time
 
-#Initialize Pygame
+# Initialize Pygame
 pygame.init()
 
-#time control variables
+# Time control variables
 clock = pygame.time.Clock()
 prevTime = time.time()
 
@@ -15,46 +15,67 @@ prevTime = time.time()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-#Sprite movements
-PLAYER_SPEED = 10
+# Sprite movements
+PLAYER_SPEED = 100
 
 # Game loop control variable
 running = True
 
-#Logic for creating the window
+# Logic for creating the window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Flourish")
 
-#Initalize game objects to be able to us
-map = tileHandle("Visuals/Maps/worldMap.csv") # Load the map from a CSV file
-initPlayer = Player(0,0)
-playerImage = pygame.image.load("Visuals/Sprites/testSprite.png")
+# Initialize game objects
+mapCreation = tileHandle("Visuals/Maps/worldMap.csv")
+player = Player(100, 100) 
+camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
+
+try:
+    playerImage = pygame.image.load("Visuals/Sprites/testSprite.png")
+except pygame.error:
+    print("Image not found!")
 
 while running: 
-    #Logic for calculatind delta time
+    # Logic for calculating delta time
     currentTime = time.time()
     deltaTime = currentTime - prevTime
     prevTime = currentTime
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False  # Stop the game loop
+            running = False
 
+    # player movement
     keys = pygame.key.get_pressed()
+    moveX = 0
+    moveY = 0
+    
     if keys[pygame.K_w]:
-        initPlayer.updateLocation(0, -PLAYER_SPEED * deltaTime)
-    if keys[pygame.K_a]:
-        initPlayer.updateLocation(-PLAYER_SPEED * deltaTime, 0)
+        moveY = -PLAYER_SPEED * deltaTime
     if keys[pygame.K_s]:
-        initPlayer.updateLocation(0, PLAYER_SPEED * deltaTime)
+        moveY = PLAYER_SPEED * deltaTime
+    if keys[pygame.K_a]:
+        moveX = -PLAYER_SPEED * deltaTime
     if keys[pygame.K_d]:
-        initPlayer.updateLocation(PLAYER_SPEED * deltaTime, 0)
+        moveX = PLAYER_SPEED * deltaTime
 
-    # Refreshes our game window and also redraws sprites that move dynamically
-    map.drawMap(screen)
-    initPlayer.drawPlayer(screen, playerImage)
+    player.updateLocation(moveX, moveY)
+
+    # Keep the player sprite inside the world map; same logic as camera
+    player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
+    player.positionY = max(0, min(player.positionY, mapCreation.mapHeight - player.size))
+    
+    # Update camera to follow player by following its "hitbox"
+    playerCenter = player.getCenter()
+    camera.update(playerCenter[0], playerCenter[1])
+    
+    screen.fill((0, 0, 0))
+    
+    mapCreation.drawMap(screen, camera.cameraX, camera.cameraY, SCREEN_WIDTH, SCREEN_HEIGHT)
+    
+    player.drawPlayer(screen, playerImage, camera.cameraX, camera.cameraY)
+    
     pygame.display.flip()
     clock.tick(60)
-
-# Clean up and close the window properly
+    
 pygame.quit()
