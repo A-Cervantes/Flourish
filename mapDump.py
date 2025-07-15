@@ -13,9 +13,8 @@ class mapDump(pygame.sprite.Sprite):
     def draw(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
-
 class tileHandle():
-    def __init__(self, filename):
+    def __init__(self, filename,):
         self.filename = filename
         self.initX, self.initY = 0, 0
         self.tileSize = 16
@@ -76,4 +75,5 @@ class tileHandle():
         self.mapWidth = x * self.tileSize
         self.mapHeight = y * self.tileSize
         return tiles
+
 
