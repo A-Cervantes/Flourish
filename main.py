@@ -17,8 +17,11 @@ prevTime = time.time()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-# Sprite movements
+# Sprite attributes 
 PLAYER_SPEED = 100
+PLAYER_HEALTH = 100
+PLAYER_POSITION_X = 100
+PLAYER_POSITION_Y = 100
 
 # Game loop control variable
 running = True
@@ -29,7 +32,7 @@ pygame.display.set_caption("Flourish")
 
 # Initialize game objects
 mapCreation = tileHandle("Visuals/Maps/worldMap.csv")
-player = Player(100, 100) 
+player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y ,PLAYER_HEALTH) 
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 
 try:
@@ -77,7 +80,8 @@ while running:
 
 
     player.updateLocation(moveX, moveY)
-    player.displayStats()
+    # player.displayStats()
+    player.checkCollision()
 
     # Keep the player sprite inside the world map; same logic as camera
     player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))

@@ -22,6 +22,7 @@ class tileHandle():
         self.initY = 0
         self.tileSize = 16
         self.tiles = self.tileDump(self.filename)
+        self.numMap = self.readCSV(self.filename)
         
     def drawMap(self, screen, cameraX, cameraY, screenWidth, screenHeight):
 
@@ -76,23 +77,23 @@ class tileHandle():
         y = 0
         for row in mapArray:
             x = 0
-            for tile_id in row:
+            for tileID in row:
                 tileObject = None
-                if tile_id == '1':
+                if tileID == '1':
                     tileObject = mapDump(imageVault["bushGrass"], x * self.tileSize, y * self.tileSize)
-                elif tile_id == '2':
+                elif tileID == '2':
                     tileObject = mapDump(imageVault["grass"], x * self.tileSize, y * self.tileSize)
-                elif tile_id == '3':
+                elif tileID == '3':
                     tileObject = mapDump(imageVault["treeTop"], x * self.tileSize, y * self.tileSize)
-                elif tile_id == '4':
+                elif tileID == '4':
                     tileObject = mapDump(imageVault["treeBottom"], x * self.tileSize, y * self.tileSize)
-                elif tile_id == '5':
+                elif tileID == '5':
                     tileObject = mapDump(imageVault["seed"], x * self.tileSize, y * self.tileSize)
-                elif tile_id == '6':
+                elif tileID == '6':
                     tileObject = mapDump(imageVault["crabGrass"], x * self.tileSize, y * self.tileSize)
-                elif tile_id == '7':
+                elif tileID == '7':
                     tileObject = mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize)
-                elif tile_id == '0':
+                elif tileID == '0':
                     print("Block is not defined!")
                     pass
                 

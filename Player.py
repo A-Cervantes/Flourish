@@ -1,13 +1,16 @@
 # Player.py
 import pygame
+from mapDump import *
 
 class Player:
-    def __init__(self, positionX, positionY):
+    def __init__(self, positionX, positionY, initialHealth):
         # Movement & rendering
         self.positionX = positionX
         self.positionY = positionY
         self.speed = 100
         self.size = 16
+        self.health = initialHealth;
+        self.tileMap = tileHandle("Visuals/Maps/worldMap.csv").numMap;
 
         # Game logic
         self.level = 1
@@ -60,5 +63,33 @@ class Player:
         print(f"Plants Growing: {[p.name for p in self.plants]}")
         print(f"Tasks Completed: {[t.name for t in self.completed_tasks]}")
         print(f"Facts Unlocked: {len(self.unlocked_facts)}")
-
     
+    def isAlive(self):
+        if self.health < 0:
+            return True
+        else:
+            return False
+        
+    def tookDamage(self, damage):
+        self.health =- damage;
+    
+    def gainHealth(self, health):
+        self.health =+ health;
+
+    def checkCollision(self):
+        sandBlock = '7'
+        playerHitBox = self.getCenter()
+        playerX = playerHitBox[0]
+        playerY = playerHitBox[1]
+
+        tileX = int((playerX // self.size))
+        tileY = int((playerY // self.size))
+
+        currentTile = self.tileMap[tileY][tileX] 
+        
+        if currentTile == sandBlock:
+            print("I can walk here!!!!!")
+            return True
+        else:
+            print("I cant walk here!")
+            return False
