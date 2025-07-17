@@ -2,8 +2,8 @@ import pygame
 from mapDump import *
 from Player import *
 from Camera import *
-from Plants import Plants 
-from Tasks import Tasks
+from Plants import Plant
+from Tasks import Task
 import time
 
 # Initialize Pygame
@@ -38,8 +38,8 @@ except pygame.error:
     print("Image not found!")
 
 # Sample data
-testPlant = Plants("Sunflower")
-testTask = Tasks("Water the plant", "Find the watering can and use it.", points=2)
+testPlant = Plant("Sunflower")
+testTask = Task("Water the plant", "Find the watering can and use it.", points=2)
 
 # Add to player
 player.addPlant(testPlant)
