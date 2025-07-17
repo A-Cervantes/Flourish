@@ -2,6 +2,8 @@ import pygame
 from mapDump import *
 from Player import *
 from Camera import *
+from Plants import Plants 
+from Tasks import Tasks
 import time
 
 # Initialize Pygame
@@ -35,6 +37,14 @@ try:
 except pygame.error:
     print("Image not found!")
 
+# Sample data
+testPlant = Plants("Sunflower")
+testTask = Tasks("Water the plant", "Find the watering can and use it.", points=2)
+
+# Add to player
+player.addPlant(testPlant)
+player.current_tasks = [testTask]
+
 while running: 
     # Logic for calculating delta time
     currentTime = time.time()
@@ -57,9 +67,17 @@ while running:
     if keys[pygame.K_a]:
         moveX = -PLAYER_SPEED * deltaTime
     if keys[pygame.K_d]:
-        moveX = PLAYER_SPEED * deltaTime
+        moveX = PLAYER_SPEED * deltaTime 
+
+    if keys[pygame.K_SPACE]:
+        if player.current_tasks:
+            current_task = player.current_tasks[0]
+            player.completeTask(current_task)
+            testPlant.grow()
+
 
     player.updateLocation(moveX, moveY)
+    player.displayStats()
 
     # Keep the player sprite inside the world map; same logic as camera
     player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
