@@ -16,9 +16,9 @@ class mapDump(pygame.sprite.Sprite):
         self.rect.y = y
 
     def draw(self, screen, cameraX, cameraY):
-        screenY = self.rect.x - cameraX
+        screenX = self.rect.x - cameraX
         screenY = self.rect.y - cameraY
-        screen.blit(self.image, (screenY, screenY))
+        screen.blit(self.image, (screenX, screenY))
 
 class tileHandle():
     def __init__(self, filename):

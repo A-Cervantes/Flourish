@@ -31,8 +31,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Flourish")
 
 # Initialize game objects
-mapCreation = tileHandle("Visuals/Maps/worldMap.csv")
-player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y ,PLAYER_HEALTH) 
+mapCreation = tileHandle("Visuals/Maps/mainMap.csv")
+player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y ,PLAYER_HEALTH, mapCreation) 
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 
 try:
@@ -77,6 +77,8 @@ while running:
             current_task = player.current_tasks[0]
             player.completeTask(current_task)
             testPlant.grow()
+    if keys[pygame.K_e]:
+        player.plantSeed();
 
 
     player.updateLocation(moveX, moveY)
