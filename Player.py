@@ -2,24 +2,33 @@ import pygame
 from mapDump import *
 
 class Player:
-    def __init__(self, positionX, positionY, initialHealth):
+    def __init__(self, positionX, positionY, initialHealth, tileHandler):
         self.positionX = positionX
         self.positionY = positionY
         self.speed = 100
         self.size = 32
         self.hitboxSize = 1  
         self.health = initialHealth
-        
-        self.tileHandler = tileHandle("Visuals/Maps/worldMap.csv")
-        self.tileMap = self.tileHandler.numMap
-        self.tileSize = self.tileHandler.tileSize
+
+        self.tileHandler = tileHandler        
+        self.tileMap = tileHandler.numMap
+        self.tileSize = tileHandler.tileSize
 
         self.level = 1
         self.knowledge_points = 0
         self.garden_slots = 1
+        self.seedsCollected = 1000;
         self.plants = [] 
         self.completed_tasks = []
         self.unlocked_facts = []
+
+        self.bushGrass = '1'
+        self.grass = '2'
+        self.treeTop = '3'
+        self.treeBottom = '4'
+        self.seed = '5'
+        self.crabGrass = '6'
+        self.sandBlock = '7'
 
     # --- Movement & Drawing ---
     def drawPlayer(self, screen, image, cameraX, cameraY):
@@ -46,8 +55,9 @@ class Player:
 
 
     def canMoveTo(self, x, y):
-        walkableTiles = ['0', '1', '2', '5', '6']  
-        solidTiles = ['3', '4', '7'] 
+
+        walkableTiles = [self.bushGrass,self.grass,self.seed,self.crabGrass,self.sandBlock]  
+        solidTiles = [self.treeTop, self.treeBottom] 
         
         hitboxOffset = (self.size - self.hitboxSize) // 2
 
@@ -131,10 +141,23 @@ class Player:
    
     def checkTileInteractions(self):
         currentTile = self.getCurrentTile()
-        
-        if currentTile == '5':  # Seed tile
-            print("Found a seed!")
 
-        elif currentTile == '7':  # Sand block
-            print("Standing on sand - maybe slower movement?")
-       
+
+    def plantSeed(self):
+        if self.seedsCollected > 0:
+            
+            #Get the current tile we are on
+            centerX, centerY = self.getCenter()
+            tileX = int(centerX // self.tileSize)
+            tileY = int(centerY // self.tileSize)
+            
+            if self.tileMap[tileY][tileX] != self.grass:
+                print("You cannot plant here :{")
+            else:
+                print("You can plant here!")
+                self.tileMap[tileY][tileX] = self.seed
+            
+                newTile = mapDump(imageVault["seed"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
+                self.tileHandler.tileGrid[tileY][tileX] = newTile
+                
+                self.seedsCollected -= 1
