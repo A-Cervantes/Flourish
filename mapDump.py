@@ -3,9 +3,14 @@ import pygame
 from images import *
 
 class mapDump(pygame.sprite.Sprite):
-    def __init__(self, image, x, y):
+    def __init__(self, image, x, y, scale=1):
         super().__init__()
-        self.image = pygame.image.load(image)
+        original_image = pygame.image.load(image)
+        if scale != 1:
+            new_size = (original_image.get_width() * scale, original_image.get_height() * scale)
+            self.image = pygame.transform.scale(original_image, new_size)
+        else:
+            self.image = original_image
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -20,7 +25,9 @@ class tileHandle():
         self.filename = filename
         self.initX = 0
         self.initY = 0
-        self.tileSize = 16
+        self.baseTileSize = 16  
+        self.scale = 2  
+        self.tileSize = self.baseTileSize * self.scale  
         self.tiles = self.tileDump(self.filename)
         self.numMap = self.readCSV(self.filename)
         
@@ -80,22 +87,21 @@ class tileHandle():
             for tileID in row:
                 tileObject = None
                 if tileID == '1':
-                    tileObject = mapDump(imageVault["bushGrass"], x * self.tileSize, y * self.tileSize)
+                    tileObject = mapDump(imageVault["bushGrass"], x * self.tileSize, y * self.tileSize, self.scale)
                 elif tileID == '2':
-                    tileObject = mapDump(imageVault["grass"], x * self.tileSize, y * self.tileSize)
+                    tileObject = mapDump(imageVault["grass"], x * self.tileSize, y * self.tileSize,  self.scale)
                 elif tileID == '3':
-                    tileObject = mapDump(imageVault["treeTop"], x * self.tileSize, y * self.tileSize)
+                    tileObject = mapDump(imageVault["treeTop"], x * self.tileSize, y * self.tileSize,  self.scale)
                 elif tileID == '4':
-                    tileObject = mapDump(imageVault["treeBottom"], x * self.tileSize, y * self.tileSize)
+                    tileObject = mapDump(imageVault["treeBottom"], x * self.tileSize, y * self.tileSize, self.scale)
                 elif tileID == '5':
-                    tileObject = mapDump(imageVault["seed"], x * self.tileSize, y * self.tileSize)
+                    tileObject = mapDump(imageVault["seed"], x * self.tileSize, y * self.tileSize,  self.scale)
                 elif tileID == '6':
-                    tileObject = mapDump(imageVault["crabGrass"], x * self.tileSize, y * self.tileSize)
+                    tileObject = mapDump(imageVault["crabGrass"], x * self.tileSize, y * self.tileSize,  self.scale)
                 elif tileID == '7':
-                    tileObject = mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize)
+                    tileObject = mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize,  self.scale)
                 elif tileID == '0':
-                    print("Block is not defined!")
-                    pass
+                    tileObject = mapDump(imageVault["biggrass"], x * self.tileSize, y * self.tileSize,  self.scale)
                 
                 #Load the image into the tileGrid array, so that it can displayed
                 if tileObject:

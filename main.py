@@ -36,7 +36,7 @@ player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y ,PLAYER_HEALTH)
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 
 try:
-    playerImage = pygame.image.load("Visuals/Sprites/testSprite.png")
+    playerImage = pygame.image.load("Visuals/Sprites/bird.png")
 except pygame.error:
     print("Image not found!")
 
@@ -80,8 +80,7 @@ while running:
 
 
     player.updateLocation(moveX, moveY)
-    # player.displayStats()
-    player.checkCollision()
+    player.checkTileInteractions()
 
     # Keep the player sprite inside the world map; same logic as camera
     player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))

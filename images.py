@@ -16,7 +16,7 @@ def imageIndex():
             "treeBottom": "Visuals/Blocks/treeBottom.png",# Index 4
             "seed": "Visuals/Blocks/seed.png", #Index 5
             "crabGrass": "Visuals/Blocks/crabGrass.png", #Index 6
-            "sandBlock": "Visuals/Blocks/sandBlock.png" #Index 7
+            "sandBlock": "Visuals/Blocks/sandBlock.png", #Index 7
         }
 
 imageIndex()
