@@ -1,22 +1,23 @@
-# Player.py
 import pygame
 from mapDump import *
 
 class Player:
     def __init__(self, positionX, positionY, initialHealth):
-        # Movement & rendering
         self.positionX = positionX
         self.positionY = positionY
         self.speed = 100
-        self.size = 16
-        self.health = initialHealth;
-        self.tileMap = tileHandle("Visuals/Maps/worldMap.csv").numMap;
+        self.size = 32
+        self.hitboxSize = 1  
+        self.health = initialHealth
+        
+        self.tileHandler = tileHandle("Visuals/Maps/worldMap.csv")
+        self.tileMap = self.tileHandler.numMap
+        self.tileSize = self.tileHandler.tileSize
 
-        # Game logic
         self.level = 1
         self.knowledge_points = 0
         self.garden_slots = 1
-        self.plants = []  # list of Plant objects
+        self.plants = [] 
         self.completed_tasks = []
         self.unlocked_facts = []
 
@@ -27,11 +28,66 @@ class Player:
         screen.blit(image, (screenX, screenY))
 
     def updateLocation(self, moveX, moveY):
-        self.positionX += moveX
-        self.positionY += moveY
+        oldX = self.positionX
+        oldY = self.positionY
+        
+        newX = self.positionX + moveX
+        newY = self.positionY + moveY
+        
+        if self.canMoveTo(newX, newY):
+            self.positionX = newX
+            self.positionY = newY
+
+        elif self.canMoveTo(newX, oldY):
+            self.positionX = newX
+
+        elif self.canMoveTo(oldX, newY):
+            self.positionY = newY
+
+
+    def canMoveTo(self, x, y):
+        walkableTiles = ['0', '1', '2', '5', '6']  
+        solidTiles = ['3', '4', '7'] 
+        
+        hitboxOffset = (self.size - self.hitboxSize) // 2
+
+        # Math for the corners for the sprite
+        corners = [
+            (x + hitboxOffset, y + hitboxOffset),  
+            (x + hitboxOffset + self.hitboxSize - 1, y + hitboxOffset), 
+            (x + hitboxOffset, y + hitboxOffset + self.hitboxSize - 1),  
+            (x + hitboxOffset + self.hitboxSize - 1, y + hitboxOffset + self.hitboxSize - 1)  
+        ]
+        
+        for cornerX, cornerY in corners:
+            tileX = int(cornerX // self.tileSize)
+            tileY = int(cornerY // self.tileSize)
+            
+            if (tileX < 0 or tileY < 0 or 
+                tileY >= len(self.tileMap) or 
+                tileX >= len(self.tileMap[0])):
+                return False
+            
+            currentTile = self.tileMap[tileY][tileX]
+            if currentTile in solidTiles:
+                return False
+        
+        return True
 
     def getCenter(self):
         return (self.positionX + self.size // 2, self.positionY + self.size // 2)
+
+    def getCurrentTile(self):
+        centerX, centerY = self.getCenter()
+        tileX = int(centerX // self.tileSize)
+        tileY = int(centerY // self.tileSize)
+        
+        if (tileX < 0 or tileY < 0 or 
+            tileY >= len(self.tileMap) or 
+            tileX >= len(self.tileMap[0])):
+            return None
+        
+        return self.tileMap[tileY][tileX]
 
     # --- Game Logic ---
     def addPlant(self, plant):
@@ -65,31 +121,20 @@ class Player:
         print(f"Facts Unlocked: {len(self.unlocked_facts)}")
     
     def isAlive(self):
-        if self.health < 0:
-            return True
-        else:
-            return False
+        return self.health > 0  
         
     def tookDamage(self, damage):
-        self.health =- damage;
-    
+        self.health -= damage  
+
     def gainHealth(self, health):
-        self.health =+ health;
-
-    def checkCollision(self):
-        sandBlock = '7'
-        playerHitBox = self.getCenter()
-        playerX = playerHitBox[0]
-        playerY = playerHitBox[1]
-
-        tileX = int((playerX // self.size))
-        tileY = int((playerY // self.size))
-
-        currentTile = self.tileMap[tileY][tileX] 
+        self.health += health  
+   
+    def checkTileInteractions(self):
+        currentTile = self.getCurrentTile()
         
-        if currentTile == sandBlock:
-            print("I can walk here!!!!!")
-            return True
-        else:
-            print("I cant walk here!")
-            return False
+        if currentTile == '5':  # Seed tile
+            print("Found a seed!")
+
+        elif currentTile == '7':  # Sand block
+            print("Standing on sand - maybe slower movement?")
+       
