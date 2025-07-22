@@ -80,9 +80,13 @@ while running:
     if keys[pygame.K_e]:
         player.plantSeed();
 
+    slowEffect = player.checkTileInteractions()
+    
+    if(slowEffect):
+        player.updateLocation(moveX * 0.5, moveY * 0.5)
+    else:
+         player.updateLocation(moveX, moveY)
 
-    player.updateLocation(moveX, moveY)
-    player.checkTileInteractions()
 
     # Keep the player sprite inside the world map; same logic as camera
     player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))

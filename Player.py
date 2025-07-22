@@ -141,11 +141,15 @@ class Player:
    
     def checkTileInteractions(self):
         currentTile = self.getCurrentTile()
-
+         
+        if currentTile == self.bushGrass or currentTile == self.crabGrass:
+            return True;
+    
+        return False
 
     def plantSeed(self):
         if self.seedsCollected > 0:
-            
+
             #Get the current tile we are on
             centerX, centerY = self.getCenter()
             tileX = int(centerX // self.tileSize)
@@ -157,6 +161,7 @@ class Player:
                 print("You can plant here!")
                 self.tileMap[tileY][tileX] = self.seed
             
+                #Update that tile with a seed image
                 newTile = mapDump(imageVault["seed"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
                 self.tileHandler.tileGrid[tileY][tileX] = newTile
                 
