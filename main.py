@@ -4,6 +4,7 @@ from Player import *
 from Camera import *
 from Plants import Plant
 from Tasks import Task
+from Levels import Level
 import time
 
 # Initialize Pygame
