@@ -1,7 +1,7 @@
 class Plant:
     def __init__(self, name):
         self.name = name
-        self.growth_stage = 0  # 0 = seed, 3 = full grown
+        self.growth_stage = 0  
         self.facts = []
 
     def grow(self):

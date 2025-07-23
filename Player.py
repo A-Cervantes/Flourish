@@ -141,12 +141,8 @@ class Player:
    
     def checkTileInteractions(self):
         currentTile = self.getCurrentTile()
-         
-        if currentTile == self.bushGrass or currentTile == self.crabGrass:
-            return True;
+        return currentTile == self.bushGrass or currentTile == self.crabGrass
     
-        return False
-
     def plantSeed(self):
         if self.seedsCollected > 0:
 
@@ -166,3 +162,6 @@ class Player:
                 self.tileHandler.tileGrid[tileY][tileX] = newTile
                 
                 self.seedsCollected -= 1
+
+    def gameOver(self, remainingTime):
+        return not self.isAlive() or remainingTime <= 0
