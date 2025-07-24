@@ -1,5 +1,6 @@
 import pygame
 from mapDump import *
+from Plants import Plant
 
 class Player:
     def __init__(self, positionX, positionY, initialHealth, tileHandler):
@@ -106,17 +107,6 @@ class Player:
         else:
             print("Garden full! Level up to grow more plants.")
 
-    def completeTask(self, task):
-        if task not in self.completed_tasks:
-            self.completed_tasks.append(task)
-            self.knowledge_points += task.points
-            print(f"Task '{task.name}' completed! Gained {task.points} knowledge points.")
-
-    def unlockFact(self, fact):
-        if fact not in self.unlocked_facts:
-            self.unlocked_facts.append(fact)
-            self.knowledge_points += 1
-            print(f"Unlocked new fact: {fact}")
 
     def levelUp(self):
         self.level += 1
@@ -143,10 +133,17 @@ class Player:
         currentTile = self.getCurrentTile()
         return currentTile == self.bushGrass or currentTile == self.crabGrass
     
-    def plantSeed(self):
-        if self.seedsCollected > 0:
+    def addPoints(self, points):
+        self.knowledge_points += points
+        print(f"Knowledge Points increased by {points}. Total: {self.knowledge_points}")
+    
+    def plantSeed(self, quiz_correct=False):
+        if not quiz_correct:
+            print("You must answer a question correctly to plant a seed!")
+            return
 
-            #Get the current tile we are on
+        if self.seedsCollected > 0:
+            # Get the current tile we are on
             centerX, centerY = self.getCenter()
             tileX = int(centerX // self.tileSize)
             tileY = int(centerY // self.tileSize)
@@ -157,7 +154,7 @@ class Player:
                 print("You can plant here!")
                 self.tileMap[tileY][tileX] = self.seed
             
-                #Update that tile with a seed image
+                # Update that tile with a seed image
                 newTile = mapDump(imageVault["seed"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
                 self.tileHandler.tileGrid[tileY][tileX] = newTile
                 
