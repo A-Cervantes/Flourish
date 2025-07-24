@@ -1,5 +1,6 @@
 import pygame
 from mapDump import *
+from Plants import Plant
 
 class Player:
     def __init__(self, positionX, positionY, initialHealth, tileHandler):
