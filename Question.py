@@ -5,11 +5,6 @@ class Question:
         self.correct_choice_index = correct_choice_index  # Index of correct answer
         self.points = points
 
-    def display(self):
-        print(self.question_text)
-        for idx, choice in enumerate(self.choices):
-            print(f"{idx + 1}. {choice}")
-
     def check_answer(self, user_choice):
         return user_choice == self.correct_choice_index + 1
 
@@ -69,31 +64,3 @@ level3_questions = [
         1
     ),
 ]
-
-def run_quiz(questions, level):
-    print(f"\n--- Level {level} ---")
-    score = 0
-    for q in questions:
-        q.display()
-        try:
-            user_input = int(input("Your answer (number): "))
-            if q.check_answer(user_input):
-                print("Correct!\n")
-                score += q.points
-            else:
-                print("Incorrect.\n")
-        except ValueError:
-            print("Please enter a valid number.\n")
-    print(f"Level {level} finished! Your score: {score}\n")
-    return score
-
-# Run all levels in order
-def run_all_levels():
-    total_score = 0
-    total_score += run_quiz(level1_questions, 1)
-    total_score += run_quiz(level2_questions, 2)
-    total_score += run_quiz(level3_questions, 3)
-    print(f"Quiz finished! Your total score: {total_score}")
-
-# test all levels in the terminal
-run_all_levels()
