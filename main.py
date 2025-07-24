@@ -17,7 +17,7 @@ clock = pygame.time.Clock()
 prevTime = time.time()
 
 # Time control variables for game duration
-startTime = 60
+startTime = 180
 endTime = prevTime + startTime
 
 # Screen dimensions
