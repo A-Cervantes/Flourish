@@ -7,7 +7,7 @@ class Player:
         self.positionX = positionX
         self.positionY = positionY
         self.speed = 100
-        self.size = 32
+        self.size = 16
         self.hitboxSize = 1  
         self.health = initialHealth
 
@@ -31,10 +31,31 @@ class Player:
         self.crabGrass = '6'
         self.sandBlock = '7'
 
-    # --- Movement & Drawing ---
-    def drawPlayer(self, screen, image, cameraX, cameraY):
+        self.animations = {
+            "right": [pygame.image.load("Visuals/Sprites/bird.png"), pygame.image.load("Visuals/Sprites/bird_right.png")],
+            "left": [pygame.image.load("Visuals/Sprites/bird.png"), pygame.image.load("Visuals/Sprites/bird_right.png")],
+            "up": [pygame.image.load("Visuals/Sprites/bird.png"), pygame.image.load("Visuals/Sprites/bird_right.png")],
+            "down": [pygame.image.load("Visuals/Sprites/bird.png"), pygame.image.load("Visuals/Sprites/bird_right.png")]
+        }
+
+        self.currentFrame = 0
+        self.animationTimer = 0
+        self.animationSpeed = 0.5
+        self.direction = "right"  
+
+    def updateAnimation(self, deltaTime, moving):
+        if moving:
+            self.animationTimer += deltaTime
+            if self.animationTimer >= self.animationSpeed:
+                self.animationTimer = 0
+                self.currentFrame = (self.currentFrame + 1) % len(self.animations[self.direction])
+        else:
+            self.currentFrame = 0  
+
+    def drawPlayer(self, screen, cameraX, cameraY):
         screenX = self.positionX - cameraX
         screenY = self.positionY - cameraY
+        image = self.animations[self.direction][self.currentFrame]
         screen.blit(image, (screenX, screenY))
 
     def updateLocation(self, moveX, moveY):

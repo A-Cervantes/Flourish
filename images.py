@@ -1,15 +1,11 @@
-import pygame 
-
 #Dictionary that holds images for easier access, for all 3 maps
 #This is a global variable that can be accessed by other modules
-
-imageVault = {}
-
 def imageIndex():
 
     global imageVault
     global imageVault2
     global imageVault3
+    global playerImage
 
     imageVault = {
             "bushGrass": "Visuals/Blocks/bushGrass.png", #Index 1
@@ -24,5 +20,5 @@ def imageIndex():
     imageVault2 = {} 
 
     imageVault3 = {}
-
+    
 imageIndex()
