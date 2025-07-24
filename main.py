@@ -3,7 +3,7 @@ from mapDump import *
 from Player import *
 from Camera import *
 from Plants import Plant
-from Tasks import Task
+from Question import Question, level1_questions, level2_questions, level3_questions
 import healthBar
 import time
 
@@ -39,6 +39,17 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 font = pygame.font.Font(None, 50)
 pygame.display.set_caption("Flourish")
 
+
+#Variable to control the quiz
+current_level = 1
+question_index = 0
+quiz_active = False 
+current_question = None
+questions = []
+user_answer = None  # Track which answer the player is selecting
+show_feedback = False
+feedback_text = ""
+
 # Initialize game objects
 mapCreation = tileHandle("Visuals/Maps/mainMap.csv")
 player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y ,PLAYER_HEALTH, mapCreation) 
@@ -51,12 +62,6 @@ except pygame.error:
     print("Image not found!")
     pygame.quit()
 
-# Sample data
-testPlant = Plant("Sunflower")
-testTask = Task("Water the plant", "Find the watering can and use it.", points=2)
-
-player.addPlant(testPlant)
-player.current_tasks = [testTask]
 
 while running: 
     # Logic for calculating delta time
@@ -80,13 +85,22 @@ while running:
         moveX = -PLAYER_SPEED * deltaTime
     if keys[pygame.K_d]:
         moveX = PLAYER_SPEED * deltaTime 
-    if keys[pygame.K_SPACE]:
-        if player.current_tasks:
-            current_task = player.current_tasks[0]
-            player.completeTask(current_task)
-            testPlant.grow()
-    if keys[pygame.K_e]:
-        player.plantSeed();
+    if keys[pygame.K_e] and not quiz_active:
+        if current_level == 1:
+            questions = level1_questions
+        elif current_level == 2:
+            questions = level2_questions
+        else:
+            questions = level3_questions
+
+        if question_index < len(questions):
+            current_question = questions[question_index]
+            quiz_active = True
+            user_answer = None
+            show_feedback = False
+            feedback_text = ""
+        else:
+            print("No more questions for this level.")
     
     slowEffect = player.checkTileInteractions()
 
@@ -118,6 +132,65 @@ while running:
     screen.blit(timerArt, (SCREEN_WIDTH - 120, 20)) 
 
     healthBar.draw(screen)
+
+
+    # Logic for handling quiz questions when planting a seed
+    if quiz_active and current_question:
+        # Draw a background box for the quiz
+        pygame.draw.rect(screen, (30, 30, 30), (100, 100, 600, 250))
+        pygame.draw.rect(screen, (200, 200, 200), (100, 100, 600, 250), 3)
+
+        # Render question text
+        question_surface = font.render(current_question.question_text, True, (255, 255, 255))
+        screen.blit(question_surface, (120, 120))
+
+        # Render choices
+        for idx, choice in enumerate(current_question.choices):
+            color = (255, 255, 0) if user_answer == idx else (255, 255, 255)
+            choice_surface = font.render(f"{idx+1}. {choice}", True, color)
+            screen.blit(choice_surface, (140, 170 + idx * 40))
+
+        # Show feedback if needed
+        if show_feedback:
+            feedback_surface = font.render(feedback_text, True, (0, 255, 0) if "Correct" in feedback_text else (255, 0, 0))
+            screen.blit(feedback_surface, (120, 320)) 
+
+        # Handle user input for quiz answers
+        if quiz_active and current_question:
+            if event.type == pygame.KEYDOWN:
+                if event.key in [pygame.K_1, pygame.K_KP1]:
+                    user_answer = 0
+                elif event.key in [pygame.K_2, pygame.K_KP2]:
+                    user_answer = 1
+                elif event.key in [pygame.K_3, pygame.K_KP3]:
+                    user_answer = 2
+                elif event.key in [pygame.K_4, pygame.K_KP4]:
+                    user_answer = 3
+                elif event.key == pygame.K_RETURN and user_answer is not None:
+                    if current_question.check_answer(user_answer + 1):
+                        feedback_text = "Correct! You can plant a seed."
+                        player.addPoints(current_question.points)
+                        player.plantSeed(quiz_correct=True)
+                        question_index += 1
+                        show_feedback = True
+                        # Level up if all questions are answered
+                        if question_index >= len(questions):
+                            current_level += 1
+                            question_index = 0
+                            feedback_text += f" Level up! Now at level {current_level}"
+                    else:
+                        feedback_text = "Incorrect. Try again next time."
+                        show_feedback = True
+                    # Move to next question after short delay
+                    pygame.time.set_timer(pygame.USEREVENT, 1500)
+            elif event.type == pygame.USEREVENT and show_feedback:
+                show_feedback = False
+                quiz_active = False
+                current_question = None
+                user_answer = None
+                feedback_text = ""
+                pygame.time.set_timer(pygame.USEREVENT, 0)
+        
 
     if player.gameOver(remainingTime):
         print(remainingTime)

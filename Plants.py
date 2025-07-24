@@ -11,5 +11,3 @@ class Plant:
         else:
             print(f"{self.name} is fully grown!")
 
-    def addFact(self, fact):
-        self.facts.append(fact)
