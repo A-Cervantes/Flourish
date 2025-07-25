@@ -37,7 +37,7 @@ class Player:
             "right": ["birdRight+1.png", "birdRight+2.png", "birdRight+3.png"],
             "left": ["birdLeft+1.png", "birdLeft+2.png", "birdLeft+2.png"],
             "up": ["bird.png", "bird_right.png"],
-            "down": ["birdDown+1.png", "birdDown+2.png"],
+            "down": ["birdDown+1.png", "birdDown+2.png", "birdDown+3.png", "birdDown+4.png"],
             "right_bush": ["birdRightBush+1.png", "birdRightBush+2.png", "birdRightBush+3.png"],
             "left_bush": ["birdLeftBush+1.png", "birdLeftBush+2.png", "birdLeftBush+3.png"],
         }
