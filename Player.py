@@ -36,10 +36,12 @@ class Player:
         directions = {
             "right": ["birdRight+1.png", "birdRight+2.png", "birdRight+3.png"],
             "left": ["birdLeft+1.png", "birdLeft+2.png", "birdLeft+2.png"],
-            "up": ["bird.png", "bird_right.png"],
+            "up": ["birdUp+1.png", "birdUp+2.png", "birdUp+3.png", "birdUp+4.png"],
             "down": ["birdDown+1.png", "birdDown+2.png", "birdDown+3.png", "birdDown+4.png"],
             "right_bush": ["birdRightBush+1.png", "birdRightBush+2.png", "birdRightBush+3.png"],
             "left_bush": ["birdLeftBush+1.png", "birdLeftBush+2.png", "birdLeftBush+3.png"],
+            "down_bush" : ["birdDownBush+1.png", "birdDownBush+2.png", "birdDownBush+3.png", "birdDownBush+4.png"],
+            "up_bush" : ["birdUpBush+1.png", "birdUpBush+2.png", "birdUpBush+3.png", "birdUpBush+4.png"],
         }
 
         self.animations = {}

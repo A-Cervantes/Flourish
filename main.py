@@ -28,7 +28,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Flourish Game")
 
 # Sprite attributes 
-PLAYER_SPEED = 100
+PLAYER_SPEED = 80
 PLAYER_HEALTH = 100
 PLAYER_POSITION_X = 100
 PLAYER_POSITION_Y = 100
@@ -209,7 +209,15 @@ while running:
         if slowEffect:
             player.updateLocation(moveX * 0.5, moveY * 0.5)
             player.tookDamage(8 * deltaTime)
-            direction = "right_bush" if direction == "right" else "left_bush"
+            if direction == "right":
+                direction = "right_bush" 
+            elif direction == "left":
+                 direction = "left_bush"
+            elif direction == "down":
+                direction = "down_bush"
+            elif direction == "up":
+                print("I am going up")
+                direction = "up_bush"
         elif moving:
             player.updateLocation(moveX, moveY)
 
