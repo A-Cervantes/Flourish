@@ -7,7 +7,7 @@ class Player:
         self.positionX = positionX
         self.positionY = positionY
         self.speed = 100
-        self.size = 16
+        self.size = 32
         self.hitboxSize = 1  
         self.health = initialHealth
 
@@ -16,12 +16,14 @@ class Player:
         self.tileSize = tileHandler.tileSize
 
         self.level = 1
-        self.knowledge_points = 0
-        self.garden_slots = 1
+        self.knowledgePoints = 0
+        self.gardenSlots = 1
         self.seedsCollected = 1000;
         self.plants = [] 
         self.completed_tasks = []
         self.unlocked_facts = []
+        self.plantsQueue = []
+        self.plantsFullyGrowed = 0
 
         self.bushGrass = '1'
         self.grass = '2'
@@ -31,16 +33,22 @@ class Player:
         self.crabGrass = '6'
         self.sandBlock = '7'
 
-        self.animations = {
-            "right": [pygame.image.load("Visuals/Sprites/bird.png"), pygame.image.load("Visuals/Sprites/bird_right.png")],
-            "left": [pygame.image.load("Visuals/Sprites/bird.png"), pygame.image.load("Visuals/Sprites/bird_right.png")],
-            "up": [pygame.image.load("Visuals/Sprites/bird.png"), pygame.image.load("Visuals/Sprites/bird_right.png")],
-            "down": [pygame.image.load("Visuals/Sprites/bird.png"), pygame.image.load("Visuals/Sprites/bird_right.png")]
+        directions = {
+            "right": ["birdRight+1.png", "birdRight+2.png", "birdRight+3.png"],
+            "left": ["birdLeft+1.png", "birdLeft+2.png", "birdLeft+2.png"],
+            "up": ["bird.png", "bird_right.png"],
+            "down": ["birdDown+1.png", "birdDown+2.png"],
+            "right_bush": ["birdRightBush+1.png", "birdRightBush+2.png", "birdRightBush+3.png"],
+            "left_bush": ["birdLeftBush+1.png", "birdLeftBush+2.png", "birdLeftBush+3.png"],
         }
+
+        self.animations = {}
+        for direction, files in directions.items():
+            self.animations[direction] = [pygame.image.load(f"Visuals/Sprites/{filename}") for filename in files]
 
         self.currentFrame = 0
         self.animationTimer = 0
-        self.animationSpeed = 0.5
+        self.animationSpeed = 0.4
         self.direction = "right"  
 
     def updateAnimation(self, deltaTime, moving):
@@ -51,6 +59,9 @@ class Player:
                 self.currentFrame = (self.currentFrame + 1) % len(self.animations[self.direction])
         else:
             self.currentFrame = 0  
+
+        if self.currentFrame >= len(self.animations[self.direction]):
+            self.currentFrame = 0
 
     def drawPlayer(self, screen, cameraX, cameraY):
         screenX = self.positionX - cameraX
@@ -76,6 +87,7 @@ class Player:
             self.positionY = newY
 
 
+    #Need to add logic for other maps, add canMoveTo the world as paramerter
     def canMoveTo(self, x, y):
 
         walkableTiles = [self.bushGrass,self.grass,self.seed,self.crabGrass,self.sandBlock]  
@@ -123,7 +135,7 @@ class Player:
 
     # --- Game Logic ---
     def addPlant(self, plant):
-        if len(self.plants) < self.garden_slots:
+        if len(self.plants) < self.gardenSlots:
             self.plants.append(plant)
         else:
             print("Garden full! Level up to grow more plants.")
@@ -131,12 +143,12 @@ class Player:
 
     def levelUp(self):
         self.level += 1
-        self.garden_slots += 1
-        print(f"Leveled up to {self.level}! You can now grow {self.garden_slots} plants.")
+        self.gardenSlots += 1
+        print(f"Leveled up to {self.level}! You can now grow {self.gardenSlots} plants.")
 
     def displayStats(self):
         print(f"Level: {self.level}")
-        print(f"Knowledge Points: {self.knowledge_points}")
+        print(f"Knowledge Points: {self.knowledgePoints}")
         print(f"Plants Growing: {[p.name for p in self.plants]}")
         print(f"Tasks Completed: {[t.name for t in self.completed_tasks]}")
         print(f"Facts Unlocked: {len(self.unlocked_facts)}")
@@ -155,13 +167,15 @@ class Player:
         return currentTile == self.bushGrass or currentTile == self.crabGrass
     
     def addPoints(self, points):
-        self.knowledge_points += points
-        print(f"Knowledge Points increased by {points}. Total: {self.knowledge_points}")
+        self.knowledgePoints += points
+        print(f"Knowledge Points increased by {points}. Total: {self.knowledgePoints}")
     
     def plantSeed(self, quiz_correct=False):
         if not quiz_correct:
-            print("You must answer a question correctly to plant a seed!")
-            return
+            return False
+
+        if self.plantQueueFull():
+            return False
 
         if self.seedsCollected > 0:
             # Get the current tile we are on
@@ -171,15 +185,47 @@ class Player:
             
             if self.tileMap[tileY][tileX] != self.grass:
                 print("You cannot plant here :{")
+                return False
             else:
                 print("You can plant here!")
-                self.tileMap[tileY][tileX] = self.seed
-            
-                # Update that tile with a seed image
-                newTile = mapDump(imageVault["seed"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
-                self.tileHandler.tileGrid[tileY][tileX] = newTile
-                
-                self.seedsCollected -= 1
+                if self.addToPlantQueue(tileX, tileY):
+                    self.tileMap[tileY][tileX] = self.seed
+                    
+                    newTile = mapDump(imageVault["seed"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
+                    self.tileHandler.tileGrid[tileY][tileX] = newTile
+                    
+                    self.seedsCollected -= 1
+                    print(f"Added plant to queue. Queue size: {len(self.plantsQueue)}")
+                    for plant in self.plantsQueue:
+                        print(plant.getPosition())
+
+                    return True
+                else:
+                    print("Failed to add to plant queue")
+                    return False
+        
+        print("No seeds available!")
+        return False
 
     def gameOver(self, remainingTime):
         return not self.isAlive() or remainingTime <= 0
+    
+    def plantQueueFull(self):
+        return len(self.plantsQueue) >= 3
+
+    def addToPlantQueue(self, tileX, tileY):
+        if len(self.plantsQueue) < 3:
+            self.plantsQueue.append((Plant("Sunflower", tileX, tileY)))
+            return True
+        return False
+    
+    def plantsGrowed(self, tileX, tileY):
+        self.plantsFullyGrowed += 1
+        newTile = mapDump(imageVault["sunFlower"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
+        self.tileHandler.tileGrid[tileY][tileX] = newTile
+
+    def plantHalfGrown(self, tileX, tileY):
+        newTile = mapDump(imageVault["normalStem"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
+        
+        self.tileHandler.tileGrid[tileY][tileX] = newTile
+        

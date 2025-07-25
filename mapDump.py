@@ -21,7 +21,8 @@ class mapDump(pygame.sprite.Sprite):
         screen.blit(self.image, (screenX, screenY))
 
 class tileHandle():
-    def __init__(self, filename):
+    def __init__(self, filename, mapName):
+        self.mapName = mapName
         self.filename = filename
         self.initX = 0
         self.initY = 0
@@ -80,38 +81,68 @@ class tileHandle():
             for col in range (len(mapArray[0])):
                 innerRow.append(None);
             self.tileGrid.append(innerRow)
-        
-        y = 0
-        for row in mapArray:
-            x = 0
-            for tileID in row:
-                tileObject = None
-                if tileID == '1':
-                    tileObject = mapDump(imageVault["bushGrass"], x * self.tileSize, y * self.tileSize, self.scale)
-                elif tileID == '2':
-                    tileObject = mapDump(imageVault["grass"], x * self.tileSize, y * self.tileSize,  self.scale)
-                elif tileID == '3':
-                    tileObject = mapDump(imageVault["treeTop"], x * self.tileSize, y * self.tileSize,  self.scale)
-                elif tileID == '4':
-                    tileObject = mapDump(imageVault["treeBottom"], x * self.tileSize, y * self.tileSize, self.scale)
-                elif tileID == '5':
-                    tileObject = mapDump(imageVault["seed"], x * self.tileSize, y * self.tileSize,  self.scale)
-                elif tileID == '6':
-                    tileObject = mapDump(imageVault["crabGrass"], x * self.tileSize, y * self.tileSize,  self.scale)
-                elif tileID == '7':
-                    tileObject = mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize,  self.scale)
-                elif tileID == '0':
-                    tileObject = mapDump(imageVault["biggrass"], x * self.tileSize, y * self.tileSize,  self.scale)
-                
-                #Load the image into the tileGrid array, so that it can displayed
-                if tileObject:
-                    tiles.append(tileObject)
-                    self.tileGrid[y][x] = tileObject
-                    
-                x += 1
-            y += 1
 
-        # The dimensions of the map   
-        self.mapWidth = x * self.tileSize
-        self.mapHeight = y * self.tileSize
-        return tiles
+        if self.mapName == "firstMap":
+            y = 0
+            for row in mapArray:
+                x = 0
+                for tileID in row:
+                    tileObject = None
+                    if tileID == '1':
+                        tileObject = mapDump(imageVault["bushGrass"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '2':
+                        tileObject = mapDump(imageVault["grass"], x * self.tileSize, y * self.tileSize,  self.scale)
+                    elif tileID == '3':
+                        tileObject = mapDump(imageVault["treeTop"], x * self.tileSize, y * self.tileSize,  self.scale)
+                    elif tileID == '4':
+                        tileObject = mapDump(imageVault["treeBottom"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '5':
+                        tileObject = mapDump(imageVault["seed"], x * self.tileSize, y * self.tileSize,  self.scale)
+                    elif tileID == '6':
+                        tileObject = mapDump(imageVault["crabGrass"], x * self.tileSize, y * self.tileSize,  self.scale)
+                    elif tileID == '7':
+                        tileObject = mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize,  self.scale)
+                    elif tileID == '0':
+                        tileObject = mapDump(imageVault["biggrass"], x * self.tileSize, y * self.tileSize,  self.scale)
+                    
+                    #Load the image into the tileGrid array, so that it can displayed
+                    if tileObject:
+                        tiles.append(tileObject)
+                        self.tileGrid[y][x] = tileObject
+                        
+                    x += 1
+                y += 1
+
+            # The dimensions of the map   
+            self.mapWidth = x * self.tileSize
+            self.mapHeight = y * self.tileSize
+            return tiles
+        elif self.mapName == "secondMap":
+            y = 0
+            for row in mapArray:
+                x = 0
+                for tileID in row:
+                    tileObject = None
+                    if tileID == '0':
+                        tileObject = mapDump(imageVault2["Water"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '1':
+                        tileObject = mapDump(imageVault2["Stone"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '2':
+                        tileObject = mapDump(imageVault2["darkGrass"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '3':
+                        tileObject = mapDump(imageVault2["theStem"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '4':
+                        tileObject = mapDump(imageVault2["darkSand"], x * self.tileSize, y * self.tileSize, self.scale)
+                    
+                    if tileObject:
+                        tiles.append(tileObject)
+                        self.tileGrid[y][x] = tileObject
+                        
+                    x += 1
+                y += 1
+
+            # The dimensions of the map   
+            self.mapWidth = x * self.tileSize
+            self.mapHeight = y * self.tileSize
+            return tiles
+        # elif self.mapName == "thirdMap":
