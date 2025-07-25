@@ -69,7 +69,9 @@ except pygame.error:
 while running:
     while introScreen:
         screen.fill((0, 105, 62))
-        introText = font.render("Welcome to Flourish! Press 'R' to start. Press E to view your first question and Pick between numbers 1-4 to answer!", True, (255, 253, 208))
+        introText = font.render("""Welcome to Flourish! Press 'R' to start. 
+        Press E to view your first question,
+        Pick between numbers 1-4 to answer!""", True, (255, 253, 208))
         screen.blit(introText, (SCREEN_WIDTH // 2 - 300, SCREEN_HEIGHT // 2 - 20))
         pygame.display.flip()
 
