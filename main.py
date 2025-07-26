@@ -337,27 +337,6 @@ while running:
         # Game over check
         if player.gameOver(remainingTime):
             game_over = True
-
-        if player.plantsFullyGrowed >= 3:
-            levelWon = True
-            screen.fill((0, 0, 0))
-            mapName = "secondMap"
-            mapCreation = tileHandle("Visuals/Maps/secondLevel.csv",mapName)
-            player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
-            endTime = time.time() + startTime
-            healthBarObj = healthBar.healthBar(player)
-            plantBarObj = plantBar.plantBar(len(player.plantsQueue))
-            justFullyGrown = []
-            currentLevel = 1
-            questionIndex = 0
-            quizActive = False
-            currentQuestion = None
-            userAnswer = None
-            showFeedback = False
-            feedbackText = ""
-            canPlant = False
-            game_over = False
-
     else:
         try:
             fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
