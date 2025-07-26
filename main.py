@@ -53,6 +53,17 @@ showFeedback = False
 feedbackText = ""
 canPlant = False 
 
+# Set questions for the starting level
+def set_questions_for_level(level):
+    if level == 1:
+        return level1_questions
+    elif level == 2:
+        return level2_questions
+    else:
+        return level3_questions
+
+questions = set_questions_for_level(currentLevel)
+
 # Initialize game objects
 mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
 player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
@@ -136,6 +147,7 @@ while running:
                 if questionIndex >= len(questions):
                     currentLevel += 1
                     questionIndex = 0
+                    questions = set_questions_for_level(currentLevel)
             
             # Reset quiz state
             showFeedback = False
@@ -159,6 +171,7 @@ while running:
             print(len(justFullyGrown))
             currentLevel = 1
             questionIndex = 0
+            questions = set_questions_for_level(currentLevel)
             quizActive = False
             currentQuestion = None
             userAnswer = None
@@ -194,13 +207,6 @@ while running:
 
         # Quiz activation
         if keys[pygame.K_e] and not quizActive:
-            if currentLevel == 1:
-                questions = level1_questions
-            elif currentLevel == 2:
-                questions = level2_questions
-            else:
-                questions = level3_questions
-
             if questionIndex < len(questions):
                 currentQuestion = questions[questionIndex]
                 quizActive = True
@@ -231,7 +237,7 @@ while running:
 
 
         #Making sure questions align with levels
-        if player.plantsFullyGrowed >= 3:
+        if player.plantsFullyGrowed >= 3 and currentLevel == 1:
             levelWon = True
             screen.fill((0, 0, 0))
             mapName = "secondMap"
@@ -241,15 +247,9 @@ while running:
             healthBarObj = healthBar.healthBar(player)
             plantBarObj = plantBar.plantBar(len(player.plantsQueue))
             justFullyGrown = []
-            currentLevel = 2  # <-- Set to the next level!
+            currentLevel = 2
             questionIndex = 0
-            # Set questions for the new level
-            if currentLevel == 1:
-                questions = level1_questions
-            elif currentLevel == 2:
-                questions = level2_questions
-            else:
-                questions = level3_questions
+            questions = set_questions_for_level(currentLevel)
             quizActive = False
             currentQuestion = None
             userAnswer = None
