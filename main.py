@@ -269,6 +269,7 @@ while running:
             feedbackText = ""
             canPlant = False
             game_over = False
+            player.plantsFullyGrowed = 0
 
 
         # Keep player inside map
