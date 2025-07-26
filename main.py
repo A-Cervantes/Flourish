@@ -53,17 +53,6 @@ showFeedback = False
 feedbackText = ""
 canPlant = False 
 
-# Set questions for the starting level
-def set_questions_for_level(level):
-    if level == 1:
-        return level1_questions
-    elif level == 2:
-        return level2_questions
-    else:
-        return level3_questions
-
-questions = set_questions_for_level(currentLevel)
-
 # Initialize game objects
 mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
 player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
@@ -77,30 +66,11 @@ except pygame.error:
     print("Image not found!")
     pygame.quit()
 
-
-#Transitions for the levels
-def show_level_transition(screen, font, level):
-    screen.fill((0, 105, 62))
-    msg = font.render(f"Level {level} Complete!", True, (255, 253, 208))
-    msg2 = font.render("Get ready for the next level...", True, (255, 253, 208))
-    screen.blit(msg, (SCREEN_WIDTH // 2 - msg.get_width() // 2, SCREEN_HEIGHT // 2 - 60))
-    screen.blit(msg2, (SCREEN_WIDTH // 2 - msg2.get_width() // 2, SCREEN_HEIGHT // 2))
-    pygame.display.flip()
-    pygame.time.delay(2000)  # 2 seconds pause
-
 while running:
     while introScreen:
         screen.fill((0, 105, 62))
-        instructions = [
-            "Welcome to Flourish!",
-            "Press 'R' to start.",
-            "Press E to view your first question.",
-            "Pick between numbers 1-4 to answer!"
-        ]
-        for i, line in enumerate(instructions):
-            text_surface = font.render(line, True, (255, 253, 208))
-            # Adjust the position as needed for centering and spacing
-            screen.blit(text_surface, (SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT // 2 - 100 + i * 40))
+        introText = font.render("Press 'R' to start the game.\nPress E to see your first question.\nPick between 1-4 to answer.", True, (255, 253, 208))
+        screen.blit(introText, (SCREEN_WIDTH // 2 - 300, SCREEN_HEIGHT // 2 - 20))
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -158,7 +128,6 @@ while running:
                 if questionIndex >= len(questions):
                     currentLevel += 1
                     questionIndex = 0
-                    questions = set_questions_for_level(currentLevel)
             
             # Reset quiz state
             showFeedback = False
@@ -182,7 +151,6 @@ while running:
             print(len(justFullyGrown))
             currentLevel = 1
             questionIndex = 0
-            questions = set_questions_for_level(currentLevel)
             quizActive = False
             currentQuestion = None
             userAnswer = None
@@ -218,6 +186,13 @@ while running:
 
         # Quiz activation
         if keys[pygame.K_e] and not quizActive:
+            if currentLevel == 1:
+                questions = level1_questions
+            elif currentLevel == 2:
+                questions = level2_questions
+            else:
+                questions = level3_questions
+
             if questionIndex < len(questions):
                 currentQuestion = questions[questionIndex]
                 quizActive = True
@@ -245,32 +220,6 @@ while running:
                 direction = "up_bush"
         elif moving:
             player.updateLocation(moveX, moveY)
-
-
-        #Making sure questions align with levels
-        if player.plantsFullyGrowed >= 3 and currentLevel == 1:
-            show_level_transition(screen, font, currentLevel)
-            levelWon = True
-            screen.fill((0, 0, 0))
-            mapName = "secondMap"
-            mapCreation = tileHandle("Visuals/Maps/secondLevel.csv", mapName)
-            player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
-            endTime = time.time() + startTime
-            healthBarObj = healthBar.healthBar(player)
-            plantBarObj = plantBar.plantBar(len(player.plantsQueue))
-            justFullyGrown = []
-            currentLevel = 2
-            questionIndex = 0
-            questions = set_questions_for_level(currentLevel)
-            quizActive = False
-            currentQuestion = None
-            userAnswer = None
-            showFeedback = False
-            feedbackText = ""
-            canPlant = False
-            game_over = False
-            player.plantsFullyGrowed = 0
-
 
         # Keep player inside map
         player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
@@ -338,6 +287,27 @@ while running:
         # Game over check
         if player.gameOver(remainingTime):
             game_over = True
+
+        if player.plantsFullyGrowed >= 3:
+            levelWon = True
+            screen.fill((0, 0, 0))
+            mapName = "secondMap"
+            mapCreation = tileHandle("Visuals/Maps/secondLevel.csv",mapName)
+            player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
+            endTime = time.time() + startTime
+            healthBarObj = healthBar.healthBar(player)
+            plantBarObj = plantBar.plantBar(len(player.plantsQueue))
+            justFullyGrown = []
+            currentLevel = 1
+            questionIndex = 0
+            quizActive = False
+            currentQuestion = None
+            userAnswer = None
+            showFeedback = False
+            feedbackText = ""
+            canPlant = False
+            game_over = False
+
     else:
         try:
             fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
