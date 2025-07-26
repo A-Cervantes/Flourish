@@ -51,7 +51,10 @@ questions = []
 userAnswer = None
 showFeedback = False
 feedbackText = ""
-canPlant = False 
+canPlant = False
+
+
+
 
 # Initialize game objects
 mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
@@ -68,11 +71,28 @@ except pygame.error:
 
 while running:
     while introScreen:
-        screen.fill((0, 105, 62))
-        introText = font.render("Press 'R' to start the game.\nPress E to see your first question.\nPick between 1-4 to answer.", True, (255, 253, 208))
-        screen.blit(introText, (SCREEN_WIDTH // 2 - 300, SCREEN_HEIGHT // 2 - 20))
+        screen.fill((0, 105, 62))  # Background color
+
+        intro_lines = [
+            "Welcome to Flourish!",
+            "Press 'R' to start the game.",
+            "Press 'E' to see your first question.",
+            "Pick between 1–4 to answer correctly", 
+            "and grow your sunflowers!"
+        ]
+
+        line_spacing = 35
+        total_height = len(intro_lines) * line_spacing
+        start_y = SCREEN_HEIGHT // 2 - total_height // 2
+
+        for i, line in enumerate(intro_lines):
+            rendered_text = font.render(line, True, (255, 253, 208))
+            text_rect = rendered_text.get_rect(center=(SCREEN_WIDTH // 2, start_y + i * line_spacing))
+            screen.blit(rendered_text, text_rect)
+
         pygame.display.flip()
 
+    
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -267,21 +287,19 @@ while running:
 
         # Quiz box
         if quizActive and currentQuestion:
-            pygame.draw.rect(screen, (30, 30, 30), (100, 100, 600, 250))
-            pygame.draw.rect(screen, (200, 200, 200), (100, 100, 600, 250), 3)
-            question_surface = font.render(currentQuestion.question_text, True, (255, 255, 255))
-            screen.blit(question_surface, (120, 120))
-            for idx, choice in enumerate(currentQuestion.choices):
-                color = (255, 255, 0) if userAnswer == idx else (255, 255, 255)
-                choice_surface = font.render(f"{idx+1}. {choice}", True, color)
-                screen.blit(choice_surface, (140, 170 + idx * 40))
+            # Draw background quiz box
+            pygame.draw.rect(screen, (30, 30, 30), (100, 100, 600, 350))
+            pygame.draw.rect(screen, (200, 200, 200), (100, 100, 600, 350), 3)
+
+            # Use the new method to render the question + choices
+            currentQuestion.render(font, screen, start_y=120, max_width=550, selected_choice=userAnswer)
+
+            # Feedback if needed
             if showFeedback:
-                feedback_surface = font.render(
-                    feedbackText,
-                    True,
-                    (0, 255, 0) if "Correct" in feedbackText else (255, 0, 0)
-                )
-                screen.blit(feedback_surface, (120, 320))
+                feedback_color = (0, 255, 0) if "Correct" in feedbackText else (255, 0, 0)
+                feedback_surface = font.render(feedbackText, True, feedback_color)
+                screen.blit(feedback_surface, (120, 330))
+
 
 
         # Game over check
