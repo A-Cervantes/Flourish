@@ -229,6 +229,36 @@ while running:
         elif moving:
             player.updateLocation(moveX, moveY)
 
+
+        #Making sure questions align with levels
+        if player.plantsFullyGrowed >= 3:
+            levelWon = True
+            screen.fill((0, 0, 0))
+            mapName = "secondMap"
+            mapCreation = tileHandle("Visuals/Maps/secondLevel.csv", mapName)
+            player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
+            endTime = time.time() + startTime
+            healthBarObj = healthBar.healthBar(player)
+            plantBarObj = plantBar.plantBar(len(player.plantsQueue))
+            justFullyGrown = []
+            currentLevel = 2  # <-- Set to the next level!
+            questionIndex = 0
+            # Set questions for the new level
+            if currentLevel == 1:
+                questions = level1_questions
+            elif currentLevel == 2:
+                questions = level2_questions
+            else:
+                questions = level3_questions
+            quizActive = False
+            currentQuestion = None
+            userAnswer = None
+            showFeedback = False
+            feedbackText = ""
+            canPlant = False
+            game_over = False
+
+
         # Keep player inside map
         player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
         player.positionY = max(0, min(player.positionY, mapCreation.mapHeight - player.size))
