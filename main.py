@@ -77,6 +77,17 @@ except pygame.error:
     print("Image not found!")
     pygame.quit()
 
+
+#Transitions for the levels
+def show_level_transition(screen, font, level):
+    screen.fill((0, 105, 62))
+    msg = font.render(f"Level {level} Complete!", True, (255, 253, 208))
+    msg2 = font.render("Get ready for the next level...", True, (255, 253, 208))
+    screen.blit(msg, (SCREEN_WIDTH // 2 - msg.get_width() // 2, SCREEN_HEIGHT // 2 - 60))
+    screen.blit(msg2, (SCREEN_WIDTH // 2 - msg2.get_width() // 2, SCREEN_HEIGHT // 2))
+    pygame.display.flip()
+    pygame.time.delay(2000)  # 2 seconds pause
+
 while running:
     while introScreen:
         screen.fill((0, 105, 62))
@@ -238,6 +249,7 @@ while running:
 
         #Making sure questions align with levels
         if player.plantsFullyGrowed >= 3 and currentLevel == 1:
+            show_level_transition(screen, font, currentLevel)
             levelWon = True
             screen.fill((0, 0, 0))
             mapName = "secondMap"
