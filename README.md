@@ -32,7 +32,6 @@ Flourish is designed to:
 | E             | Start a question |
 | 1–4           | Answer multiple choice |
 | R             | Start game from intro screen |
-| SPACE         | (optional: complete task / trigger growth) |
 
 ---
 
@@ -69,8 +68,8 @@ python main.py
 
 ## 📚 Credits
 
-Created by a team of aspiring developers at **SEO Tech Developer: First Year Academy**.  
-Art and design by: *JJ Cham & Angel Cervantes*  
+Created by a team of aspiring developers during **SEO Tech Developer: First Year Academy**.  
+Code, Art, and design by: *JJ Cham & Angel Cervantes*  
 Learning can flourish — just like your sunflowers 🌼
 
 ---

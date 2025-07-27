@@ -31,6 +31,9 @@ class tileHandle():
         self.tileSize = self.baseTileSize * self.scale  
         self.tiles = self.tileDump(self.filename)
         self.numMap = self.readCSV(self.filename)
+        self.mapWidth = len(self.numMap[0]) * self.tileSize  # width in pixels
+        self.mapHeight = len(self.numMap) * self.tileSize    # height in pixels
+
         
     def drawMap(self, screen, cameraX, cameraY, screenWidth, screenHeight):
 

@@ -38,7 +38,7 @@ class Question:
             rendered_choice = font.render(f"{i + 1}. {choice}", True, color)
             surface.blit(rendered_choice, (140, y))
             y += rendered_choice.get_height() + spacing
-
+        
 
 # Level 1 questions
 level1_questions = [
