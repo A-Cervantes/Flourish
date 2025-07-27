@@ -163,13 +163,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        # Handle key presses for sounds
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                sounds.jump_sound.play()
-
-            if event.key == pygame.K_c:
-                sounds.coin_sound.play()
 
         # Quiz input
         if not game_over and quizActive and currentQuestion:
