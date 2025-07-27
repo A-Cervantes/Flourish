@@ -266,6 +266,9 @@ while running:
         if player.onSecretRoot():
                 theStemFound = True
                 canAnswer = True
+                if not sounds.secret_Stem_sound.get_num_channels():
+                    sounds.secret_Stem_sound.play()
+
 
         # Quiz activation
         if keys[pygame.K_e] and not quizActive and mapName == "firstMap":
@@ -339,6 +342,9 @@ while running:
 
         elif moving:
             player.updateLocation(moveX, moveY, mapName)
+            if not sounds.walk_sound.get_num_channels():
+                sounds.walk_sound.play()
+
 
         # Keep player inside map
         player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
@@ -447,6 +453,8 @@ while running:
         
         # Game over check
         if player.gameOver(remainingTime):
+            if not sounds.game_Over_sound.get_num_channels():
+                sounds.game_Over_sound.play()
             game_over = True
 
         # if player.plantsFullyGrowed >= 3:
@@ -469,8 +477,13 @@ while running:
         #     canPlant = False
         #     game_over = False
         if player.plantsFullyGrowed >= 3 and not level_transition_active:
+            if not sounds.level_Up_sound.get_num_channels():
+                sounds.level_Up_sound.play()
             level_transition_active = True
             transition_start_time = pygame.time.get_ticks()
+
+        
+
 
         if level_transition_active:
             elapsed = pygame.time.get_ticks() - transition_start_time
