@@ -19,7 +19,7 @@ def load_sounds():
 
 def play_music():
     # Use mixer.music for long background music
-    pygame.mixer.music.load('sounds/bg_music.mp3')  # or .ogg if you have it
+    pygame.mixer.music.load('sounds/bg_music.wav')  # or .ogg if you have it
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)  # Loop forever
     print("Playing music...")

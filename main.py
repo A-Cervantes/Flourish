@@ -15,8 +15,8 @@ pygame.mixer.init()
 pygame.font.init()
 font = pygame.font.SysFont("Comic Sans MS", 32)
 
-sounds.play_music()
 sounds.load_sounds()
+sounds.play_music()
 
 # Time control variables
 clock = pygame.time.Clock()
