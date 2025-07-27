@@ -355,9 +355,8 @@ while running:
         screen.blit(gameOverText, (SCREEN_WIDTH // 2 - 180, SCREEN_HEIGHT // 2 - 80))
         screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
 
-    # ========================
+    
     # Level transition handler
-    # ========================
     if level_transition_active:
         # Draw overlay
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -365,32 +364,34 @@ while running:
         overlay.fill((0, 0, 0))
         screen.blit(overlay, (0, 0))
 
-        # Display transition text
+        # Draw transition message
         transition_surface = font.render(level_transition_text, True, (255, 255, 255))
         text_rect = transition_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
         screen.blit(transition_surface, text_rect)
 
-        # Check if transition delay is over
+        # Check if delay time passed
         if pygame.time.get_ticks() - level_transition_start_time >= transition_duration:
+            # Reset transition flag so it doesn't repeat
             level_transition_active = False
-
+            
+            # Advance level and reset states
             if currentLevel == 1:
+                currentLevel = 2
                 mapName = "secondMap"
-                currentLevel += 1
             elif currentLevel == 2:
+                currentLevel = 3
                 mapName = "thirdMap"
-                currentLevel += 1
             else:
-                # Optional: Show final win screen or reset
+                # Optional: game won or restart
                 game_over = True
 
-            # Reset game state for new level
-            mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
+            # Load the new map and reset player and UI
+            mapCreation = tileHandle(f"Visuals/Maps/{mapName}.csv", mapName)
             player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
-            endTime = time.time() + startTime
+            camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
             healthBarObj = healthBar.healthBar(player)
             plantBarObj = plantBar.plantBar(len(player.plantsQueue))
-            justFullyGrown = []
+            justFullyGrown.clear()
             questionIndex = 0
             quizActive = False
             currentQuestion = None
@@ -398,6 +399,9 @@ while running:
             showFeedback = False
             feedbackText = ""
             canPlant = False
+            endTime = time.time() + startTime
+
+    
 
 
     pygame.display.flip()
