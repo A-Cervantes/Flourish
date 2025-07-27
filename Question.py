@@ -7,6 +7,38 @@ class Question:
 
     def check_answer(self, user_choice):
         return user_choice == self.correct_choice_index + 1
+    
+    def wrap_text(self, text, font, max_width):
+        words = text.split(' ')
+        lines = []
+        current_line = ""
+
+        for word in words:
+            test_line = current_line + word + " "
+            if font.size(test_line)[0] <= max_width:
+                current_line = test_line
+            else:
+                lines.append(current_line.strip())
+                current_line = word + " "
+        lines.append(current_line.strip())
+        return lines
+
+    def render(self, font, surface, start_y=120, max_width=550, spacing=10, selected_choice=None):
+        # Render wrapped question text
+        question_lines = self.wrap_text(self.question_text, font, max_width)
+        y = start_y
+        for line in question_lines:
+            rendered_line = font.render(line, True, (255, 255, 255))
+            surface.blit(rendered_line, (120, y))
+            y += rendered_line.get_height() + spacing
+
+        # Render choices
+        for i, choice in enumerate(self.choices):
+            color = (255, 255, 0) if selected_choice == i else (255, 255, 255)
+            rendered_choice = font.render(f"{i + 1}. {choice}", True, color)
+            surface.blit(rendered_choice, (140, y))
+            y += rendered_choice.get_height() + spacing
+        
 
 # Level 1 questions
 level1_questions = [
