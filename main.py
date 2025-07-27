@@ -53,6 +53,11 @@ showFeedback = False
 feedbackText = ""
 canPlant = False
 
+# Game state variables
+level_transition_active = False
+transition_start_time = 0
+
+
 
 # Initialize game objects
 mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
@@ -81,7 +86,7 @@ def show_transition(screen, font, message1, message2):
 
 
 
-def handle_level_transition(nextLevel, nextMapFile, nextQuestions):
+def handle_level_transition(nextLevel, nextMapFile, nextQuestion, mapWidth=800, mapHeight=600):
     global currentLevel, currentMap, mapCreation, player, currentQuestions, camera
 
     show_transition(screen, font,"Level Complete!", f"Moving to Level {nextLevel}...")
@@ -99,10 +104,10 @@ def handle_level_transition(nextLevel, nextMapFile, nextQuestions):
     player.plantsQueue = []
 
     # Load new questions
-    currentQuestions = nextQuestions
+    currentQuestions = nextQuestion
 
     # Reset camera
-    camera = Camera(player, mapCreation)
+    camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 
 
 while running:
@@ -182,7 +187,7 @@ while running:
                     player.plantSeed(quiz_correct=True)
                 questionIndex += 1
                 if questionIndex >= len(questions):
-                    currentLevel += 1
+                    #currentLevel += 1
                     questionIndex = 0
             
             # Reset quiz state
@@ -366,17 +371,54 @@ while running:
         #     game_over = False
         if player.plantsFullyGrowed >= 3 and not level_transition_active:
             level_transition_active = True
+            transition_start_time = pygame.time.get_ticks()
 
-        if currentLevel == 1:
-            handle_level_transition(2, "secondMap", level2_questions)
+        if level_transition_active:
+            elapsed = pygame.time.get_ticks() - transition_start_time
+            if elapsed < 3000:
+                if currentLevel == 1:
+                    message = "Great job! Moving to Level 2..."
+                elif currentLevel == 2:
+                    message = "Awesome! Entering Level 3..."
+                else:
+                    message = "You're a Flourish expert!"
+                show_transition(screen, font, "Level Complete!", message)
 
-        elif currentLevel == 2:
-            handle_level_transition(3, "thirdMap", level3_questions)
+            elif elapsed >= 3000:
+                # Only now increment the level and load the next
+                if currentLevel == 1:
+                    currentLevel = 2
+                    mapName = "secondMap"
+                    questions = level2_questions
+                elif currentLevel == 2:
+                    currentLevel = 3
+                    mapName = "thirdMap"
+                    questions = level3_questions
+                else:
+                    show_transition(screen, font, "You Win!", "Thanks for playing!")
+                    pygame.time.delay(4000)
+                    running = False
+                    break  # or break if inside loop
 
-        else:
-            show_transition(screen, font,"You Win!", "Thanks for playing!")
-            pygame.time.delay(4000)
-            running = False
+                # Reload map and player
+                mapCreation = tileHandle(f"Visuals/Maps/{mapName}.csv", mapName)
+                player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
+                camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
+                healthBarObj = healthBar.healthBar(player)
+                plantBarObj = plantBar.plantBar(len(player.plantsQueue))
+                justFullyGrown.clear()
+                questionIndex = 0
+                quizActive = False
+                currentQuestion = None
+                userAnswer = None
+                showFeedback = False
+                feedbackText = ""
+                canPlant = False
+                endTime = time.time() + startTime
+
+                level_transition_active = False
+
+
 
 
 
@@ -390,11 +432,5 @@ while running:
         screen.fill((0, 0, 0))
         screen.blit(gameOverText, (SCREEN_WIDTH // 2 - 180, SCREEN_HEIGHT // 2 - 80))
         screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
-
-    
-    
-
-    
-
 
     pygame.display.flip()
