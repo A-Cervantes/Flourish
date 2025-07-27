@@ -53,15 +53,6 @@ showFeedback = False
 feedbackText = ""
 canPlant = False
 
-# Level transition variables
-level_transition_active = False
-level_transition_text = ""
-level_transition_start_time = 0
-transition_duration = 2000  # 2 seconds
-
-
-
-
 
 # Initialize game objects
 mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
@@ -75,6 +66,44 @@ try:
 except pygame.error:
     print("Image not found!")
     pygame.quit()
+
+
+def show_transition(screen, font, message1, message2):
+    screen.fill((0, 0, 0))
+    text1 = font.render(message1, True, (255, 255, 255))
+    text2 = font.render(message2, True, (200, 200, 0))
+
+    screen.blit(text1, (screen.get_width() // 2 - text1.get_width() // 2, 200))
+    screen.blit(text2, (screen.get_width() // 2 - text2.get_width() // 2, 250))
+
+    pygame.display.update()
+    pygame.time.delay(3000)
+
+
+
+def handle_level_transition(nextLevel, nextMapFile, nextQuestions):
+    global currentLevel, currentMap, mapCreation, player, currentQuestions, camera
+
+    show_transition(screen, font,"Level Complete!", f"Moving to Level {nextLevel}...")
+    pygame.time.delay(3000)
+
+    currentLevel = nextLevel
+    currentMap = nextMapFile
+
+    # Load new map
+    mapCreation = tileHandle(f"Visuals/Maps/{nextMapFile}.csv", nextMapFile)
+
+    # Reset player
+    player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
+    player.plantsFullyGrowed = 0
+    player.plantsQueue = []
+
+    # Load new questions
+    currentQuestions = nextQuestions
+
+    # Reset camera
+    camera = Camera(player, mapCreation)
+
 
 while running:
     while introScreen:
@@ -292,6 +321,9 @@ while running:
 
         player.plantsQueue = [plant for plant in player.plantsQueue if not plant.is_fully_grown()]
 
+        
+
+
         # Quiz box
         if quizActive and currentQuestion:
             # Draw background quiz box
@@ -333,15 +365,19 @@ while running:
         #     canPlant = False
         #     game_over = False
         if player.plantsFullyGrowed >= 3 and not level_transition_active:
-            if currentLevel == 1:
-                level_transition_text = "Great job! Moving to Level 2..."
-            elif currentLevel == 2:
-                level_transition_text = "Awesome! Entering Level 3..."
-            else:
-                level_transition_text = "You're a Flourish expert!"
-
             level_transition_active = True
-            level_transition_start_time = pygame.time.get_ticks()
+
+        if currentLevel == 1:
+            handle_level_transition(2, "secondMap", level2_questions)
+
+        elif currentLevel == 2:
+            handle_level_transition(3, "thirdMap", level3_questions)
+
+        else:
+            show_transition(screen, font,"You Win!", "Thanks for playing!")
+            pygame.time.delay(4000)
+            running = False
+
 
 
     else:
@@ -356,50 +392,7 @@ while running:
         screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
 
     
-    # Level transition handler
-    if level_transition_active:
-        # Draw overlay
-        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        overlay.set_alpha(180)
-        overlay.fill((0, 0, 0))
-        screen.blit(overlay, (0, 0))
-
-        # Draw transition message
-        transition_surface = font.render(level_transition_text, True, (255, 255, 255))
-        text_rect = transition_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-        screen.blit(transition_surface, text_rect)
-
-        # Check if delay time passed
-        if pygame.time.get_ticks() - level_transition_start_time >= transition_duration:
-            # Reset transition flag so it doesn't repeat
-            level_transition_active = False
-            
-            # Advance level and reset states
-            if currentLevel == 1:
-                currentLevel = 2
-                mapName = "secondMap"
-            elif currentLevel == 2:
-                currentLevel = 3
-                mapName = "thirdMap"
-            else:
-                # Optional: game won or restart
-                game_over = True
-
-            # Load the new map and reset player and UI
-            mapCreation = tileHandle(f"Visuals/Maps/{mapName}.csv", mapName)
-            player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
-            camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
-            healthBarObj = healthBar.healthBar(player)
-            plantBarObj = plantBar.plantBar(len(player.plantsQueue))
-            justFullyGrown.clear()
-            questionIndex = 0
-            quizActive = False
-            currentQuestion = None
-            userAnswer = None
-            showFeedback = False
-            feedbackText = ""
-            canPlant = False
-            endTime = time.time() + startTime
+    
 
     
 
