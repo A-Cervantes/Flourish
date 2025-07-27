@@ -1,12 +1,25 @@
 import pygame
 
-# Initialize sounds (don't call mixer.init() here — do that once in main)
-jump_sound = pygame.mixer.Sound('assets/sounds/jump.wav')
-coin_sound = pygame.mixer.Sound('assets/sounds/coin.wav')
-game_over_sound = pygame.mixer.Sound('assets/sounds/game_over.wav')
+# Placeholder for sound variables
+secret_Stem_sound = None
+level_Up_sound = None
+game_Over_sound = None
+walk_sound = None
 
-#function to play background music
+def load_sounds():
+    global secret_Stem_sound, level_Up_sound, game_Over_sound, walk_sound
+
+    # Load short sound effects
+    secret_Stem_sound = pygame.mixer.Sound('sounds/secret_Stem.wav')
+    level_Up_sound = pygame.mixer.Sound('sounds/level_Up.wav')
+    game_Over_sound = pygame.mixer.Sound('sounds/game_Over.wav')
+    walk_sound = pygame.mixer.Sound('sounds/chick_Walking.wav')  # convert mp3 to wav!
+
+    print("Sounds loaded successfully")
+
 def play_music():
-    pygame.mixer.music.load('assets/sounds/music.ogg')
+    # Use mixer.music for long background music
+    pygame.mixer.music.load('sounds/bg_music.mp3')  # or .ogg if you have it
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)  # Loop forever
+    print("Playing music...")
