@@ -11,6 +11,7 @@ class Plant:
         self.TileX = TileX
         self.TileY = TileY
         self.position = (TileX, TileY)  
+        self.pastGrowthStage = -1
 
     def grow(self, deltaTime):
         if self.growthLevel < self.maxGrowth:
@@ -24,7 +25,6 @@ class Plant:
                 if self.growthLevel > self.maxGrowth:
                     self.growthLevel = self.maxGrowth
                     
-                print(f"{self.name} grew! Growth level: {self.growthLevel}")
                     
 
     
@@ -40,4 +40,6 @@ class Plant:
     def getPosition(self):
         return self.position
 
+    def getGrowthLevel(self):
+        return self.growthLevel
 

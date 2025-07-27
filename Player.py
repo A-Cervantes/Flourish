@@ -25,6 +25,7 @@ class Player:
         self.plantsQueue = []
         self.plantsFullyGrowed = 0
 
+        #First World Blocks
         self.bushGrass = '1'
         self.grass = '2'
         self.treeTop = '3'
@@ -33,15 +34,26 @@ class Player:
         self.crabGrass = '6'
         self.sandBlock = '7'
 
+        #Second World Block
+        self.water = '0'
+        self.stone = '1'
+        self.darkGrass = '2'
+        self.theStem = '3'
+        self.darkSand = '4'
+
         directions = {
             "right": ["birdRight+1.png", "birdRight+2.png", "birdRight+3.png"],
             "left": ["birdLeft+1.png", "birdLeft+2.png", "birdLeft+2.png"],
             "up": ["birdUp+1.png", "birdUp+2.png", "birdUp+3.png", "birdUp+4.png"],
             "down": ["birdDown+1.png", "birdDown+2.png", "birdDown+3.png", "birdDown+4.png"],
-            "right_bush": ["birdRightBush+1.png", "birdRightBush+2.png", "birdRightBush+3.png"],
-            "left_bush": ["birdLeftBush+1.png", "birdLeftBush+2.png", "birdLeftBush+3.png"],
-            "down_bush" : ["birdDownBush+1.png", "birdDownBush+2.png", "birdDownBush+3.png", "birdDownBush+4.png"],
-            "up_bush" : ["birdUpBush+1.png", "birdUpBush+2.png", "birdUpBush+3.png", "birdUpBush+4.png"],
+            "rightBush": ["birdRightBush+1.png", "birdRightBush+2.png", "birdRightBush+3.png", "birdRightBush+4.png"],
+            "leftBush": ["birdLeftBush+1.png", "birdLeftBush+2.png", "birdLeftBush+3.png", "birdLeftBush+4.png"],
+            "downBush" : ["birdDownBush+1.png", "birdDownBush+2.png", "birdDownBush+3.png", "birdDownBush+4.png"],
+            "upBush" : ["birdUpBush+1.png", "birdUpBush+2.png", "birdUpBush+3.png", "birdUpBush+4.png"],
+            "rightDarksand": ["birdRightDS+1.png", "birdRightDS+2.png", "birdRightDS+3.png", "birdRightDS+4.png"],
+            "leftDarksand": ["birdLeftDS+1.png", "birdLeftDS+2.png", "birdLeftDS+3.png", "birdLeftDS+4.png"],
+            "downDarksand": ["birdDownDS+1.png", "birdDownDS+2.png", "birdDownDS+3.png", "birdDownDS+4.png"],
+            "upDarksand": ["birdUpDS+1.png", "birdUpDS+2.png", "birdUpDS+3.png", "birdUpDS+4.png"],
         }
 
         self.animations = {}
@@ -71,29 +83,33 @@ class Player:
         image = self.animations[self.direction][self.currentFrame]
         screen.blit(image, (screenX, screenY))
 
-    def updateLocation(self, moveX, moveY):
+    def updateLocation(self, moveX, moveY, mapName):
         oldX = self.positionX
         oldY = self.positionY
         
         newX = self.positionX + moveX
         newY = self.positionY + moveY
         
-        if self.canMoveTo(newX, newY):
+        if self.canMoveTo(newX, newY, mapName):
             self.positionX = newX
             self.positionY = newY
 
-        elif self.canMoveTo(newX, oldY):
+        elif self.canMoveTo(newX, oldY, mapName):
             self.positionX = newX
 
-        elif self.canMoveTo(oldX, newY):
+        elif self.canMoveTo(oldX, newY, mapName):
             self.positionY = newY
 
 
     #Need to add logic for other maps, add canMoveTo the world as paramerter
-    def canMoveTo(self, x, y):
+    def canMoveTo(self, x, y, mapName):
+        if mapName == "firstMap":
+            walkableTiles = [self.bushGrass,self.grass,self.seed,self.crabGrass,self.sandBlock]  
+            solidTiles = [self.treeTop, self.treeBottom] 
 
-        walkableTiles = [self.bushGrass,self.grass,self.seed,self.crabGrass,self.sandBlock]  
-        solidTiles = [self.treeTop, self.treeBottom] 
+        elif mapName == "secondMap":
+            walkableTiles = [self.darkGrass, self.theStem, self.darkSand]  
+            solidTiles = [self.stone, self.water] 
         
         hitboxOffset = (self.size - self.hitboxSize) // 2
 
@@ -164,15 +180,18 @@ class Player:
     def gainHealth(self, health):
         self.health += health  
    
-    def checkTileInteractions(self):
+    def checkTileInteractions(self, mapName):
         currentTile = self.getCurrentTile()
-        return currentTile == self.bushGrass or currentTile == self.crabGrass
+        if mapName == "firstMap":
+         return currentTile == self.bushGrass or currentTile == self.crabGrass
+        if mapName == "secondMap":
+            return currentTile == self.darkSand
     
     def addPoints(self, points):
         self.knowledgePoints += points
         print(f"Knowledge Points increased by {points}. Total: {self.knowledgePoints}")
     
-    def plantSeed(self, quiz_correct=False):
+    def plantSeed(self, mapName, quiz_correct=False):
         if not quiz_correct:
             return False
 
@@ -193,8 +212,13 @@ class Player:
                 if self.addToPlantQueue(tileX, tileY):
                     self.tileMap[tileY][tileX] = self.seed
                     
-                    newTile = mapDump(imageVault["seed"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
-                    self.tileHandler.tileGrid[tileY][tileX] = newTile
+                    if mapName == "firstMap":
+                        newTile = mapDump(sunFlowerVault["sunFlower1"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
+                        self.tileHandler.tileGrid[tileY][tileX] = newTile
+                    else:
+                        newTile = mapDump(sunFlowerVaultDark["sunFlowerDark1"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
+                        self.tileHandler.tileGrid[tileY][tileX] = newTile
+
                     
                     self.seedsCollected -= 1
                     print(f"Added plant to queue. Queue size: {len(self.plantsQueue)}")
@@ -221,13 +245,40 @@ class Player:
             return True
         return False
     
-    def plantsGrowed(self, tileX, tileY):
+    def plantsGrowed(self):
         self.plantsFullyGrowed += 1
-        newTile = mapDump(imageVault["sunFlower"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
-        self.tileHandler.tileGrid[tileY][tileX] = newTile
+
 
     def plantHalfGrown(self, tileX, tileY):
         newTile = mapDump(imageVault["normalStem"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
         
         self.tileHandler.tileGrid[tileY][tileX] = newTile
-        
+
+    def onSecretRoot(self):
+        centerX, centerY = self.getCenter()
+        tileX = int(centerX // self.tileSize)
+        tileY = int(centerY // self.tileSize)
+
+        return self.tileMap[tileY][tileX] == self.theStem
+    
+    def updatePlant(self, tileX, tileY, growth, mapName):
+        if mapName == "firstMap":
+            sunKey = f"sunFlower{growth // 10}"
+            if sunKey in sunFlowerVault:
+                newTile = mapDump(
+                    sunFlowerVault[sunKey],
+                    tileX * self.tileSize,
+                    tileY * self.tileSize,
+                    self.tileHandler.scale
+                )
+                self.tileHandler.tileGrid[tileY][tileX] = newTile
+        else:
+            sunKey = f"sunFlowerDark{growth // 10}"
+            if sunKey in sunFlowerVaultDark:
+                newTile = mapDump(
+                    sunFlowerVaultDark[sunKey],
+                    tileX * self.tileSize,
+                    tileY * self.tileSize,
+                    self.tileHandler.scale
+                )
+                self.tileHandler.tileGrid[tileY][tileX] = newTile

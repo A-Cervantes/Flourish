@@ -41,6 +41,7 @@ game_over = False
 levelWon = False
 justFullyGrown = []
 mapName = "firstMap"
+theStemFound = False
 
 # Quiz variables
 currentLevel = 1
@@ -52,6 +53,10 @@ userAnswer = None
 showFeedback = False
 feedbackText = ""
 canPlant = False
+canAnswer = False
+showHint = False
+hintStartTime = None
+hintDuration = 1000
 
 # Game state variables
 level_transition_active = False
@@ -112,7 +117,7 @@ def handle_level_transition(nextLevel, nextMapFile, nextQuestion, mapWidth=800, 
 
 while running:
     while introScreen:
-        screen.fill((0, 105, 62))  # Background color
+        screen.fill((0, 105, 62)) 
 
         intro_lines = [
             "Welcome to Flourish!",
@@ -174,6 +179,7 @@ while running:
                             feedbackText = "Correct! You can plant a seed."
                             canPlant = True
                     else:
+                        player.tookDamage(3)
                         feedbackText = "Incorrect. Try again next time."
                         canPlant = False
 
@@ -184,7 +190,7 @@ while running:
             if currentQuestion and currentQuestion.check_answer(userAnswer + 1):
                 if canPlant:
                     player.addPoints(currentQuestion.points)
-                    player.plantSeed(quiz_correct=True)
+                    player.plantSeed(mapName, quiz_correct=True)
                 questionIndex += 1
                 if questionIndex >= len(questions):
                     #currentLevel += 1
@@ -226,7 +232,6 @@ while running:
     moveY = 0
     direction = 'right'
     slowEffect = False
-
     if not game_over:
         if keys[pygame.K_w]:
             moveY = -PLAYER_SPEED * deltaTime
@@ -245,8 +250,12 @@ while running:
             moving = True
             direction = 'right'
 
+        if player.onSecretRoot():
+                theStemFound = True
+                canAnswer = True
+
         # Quiz activation
-        if keys[pygame.K_e] and not quizActive:
+        if keys[pygame.K_e] and not quizActive and mapName == "firstMap":
             if currentLevel == 1:
                 questions = level1_questions
             elif currentLevel == 2:
@@ -263,24 +272,60 @@ while running:
                 canPlant = False
             else:
                 print("No more questions for this level.")
+        elif keys[pygame.K_e] and not quizActive and mapName == "secondMap":
+            if player.onSecretRoot():
+                showHint = False
+            
+            if canAnswer:
+                if currentLevel == 1:
+                    questions = level1_questions
+                elif currentLevel == 2:
+                    questions = level2_questions
+                else:
+                    questions = level3_questions
 
-        slowEffect = player.checkTileInteractions()
+                if questionIndex < len(questions):
+                    currentQuestion = questions[questionIndex]
+                    quizActive = True
+                    userAnswer = None
+                    showFeedback = False
+                    feedbackText = ""
+                    canPlant = False
+                else:
+                    print("No more questions for this level.")
+            else:
+                showHint = True
+                hintStartTime = pygame.time.get_ticks()
+
+                
+
+        slowEffect = player.checkTileInteractions(mapName)
 
         # Player slow down logic
         if slowEffect:
-            player.updateLocation(moveX * 0.5, moveY * 0.5)
-            player.tookDamage(8 * deltaTime)
-            if direction == "right":
-                direction = "right_bush" 
-            elif direction == "left":
-                 direction = "left_bush"
-            elif direction == "down":
-                direction = "down_bush"
-            elif direction == "up":
-                print("I am going up")
-                direction = "up_bush"
+            player.updateLocation(moveX * 0.5, moveY * 0.5, mapName)
+            player.tookDamage(4 * deltaTime)
+            if mapName == "firstMap":
+                if direction == "right":
+                    direction = "rightBush" 
+                elif direction == "left":
+                    direction = "leftBush"
+                elif direction == "down":
+                    direction = "downBush"
+                elif direction == "up":
+                    direction = "upBush"
+            elif mapName == "secondMap":
+                if direction == "right":
+                    direction = "rightDarksand" 
+                elif direction == "left":
+                    direction = "leftDarksand"
+                elif direction == "down":
+                    direction = "downDarksand"
+                elif direction == "up":
+                    direction = "upDarksand"
+
         elif moving:
-            player.updateLocation(moveX, moveY)
+            player.updateLocation(moveX, moveY, mapName)
 
         # Keep player inside map
         player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
@@ -308,16 +353,16 @@ while running:
 
     
         for plant in player.plantsQueue:
-            print(plant.getPosition())
             plant.grow(deltaTime)
 
-            if plant.halfWayGrown():
-                    player.plantHalfGrown(plant.position[0], plant.position[1])
-            
+            currentGrowth = plant.getGrowthLevel()
+            if plant.pastGrowthStage != currentGrowth:
+                    player.updatePlant(plant.position[0], plant.position[1], currentGrowth, mapName)
+                    plant.pastGrowthStage = currentGrowth
+
             if plant.is_fully_grown():
                 justFullyGrown.append(plant) 
-                print("A plant is grown I WILL ADD ONE TO YOUR SCORE")
-                player.plantsGrowed(plant.position[0], plant.position[1])
+                player.plantsGrowed()
                 
         # Health & Plant bar
         plantBarObj.update(len(justFullyGrown))
@@ -326,7 +371,49 @@ while running:
 
         player.plantsQueue = [plant for plant in player.plantsQueue if not plant.is_fully_grown()]
 
-        
+
+        if showHint:
+            smallFont = pygame.font.SysFont("Arial", 16)
+
+            invalidQuiz = "Find the Secret Stem to answer questions!"
+            quizWarning = smallFont.render(invalidQuiz, True, (255, 0, 0))
+
+            boxW = 400
+            boxH = 80
+            boxX = (SCREEN_WIDTH - boxW) // 2 + 25
+            boxY = (SCREEN_HEIGHT - boxH) // 2  + 250 
+            boxRect = pygame.Rect(boxX, boxY, boxW, boxH)
+
+            pygame.draw.rect(screen, (40,40,40), boxRect)  # 
+            pygame.draw.rect(screen, (100, 100, 100), boxRect, 3)  
+
+            text_rect = quizWarning.get_rect(center=boxRect.center)
+            screen.blit(quizWarning, text_rect)
+
+            if pygame.time.get_ticks() - hintStartTime >= hintDuration:
+                showHint = False
+
+        if theStemFound:
+            smallFont = pygame.font.SysFont("Arial", 18)
+
+            invalidQuiz = "You fond the Secret Stem! "
+            quizWarning = smallFont.render(invalidQuiz, True, (0, 255, 0))
+
+            boxW = 400
+            boxH = 80
+            boxX = (SCREEN_WIDTH - boxW) // 2 + 25
+            boxY = (SCREEN_HEIGHT - boxH) // 2  + 250 
+            boxRect = pygame.Rect(boxX, boxY, boxW, boxH)
+
+            pygame.draw.rect(screen, (40,40,40), boxRect)  # 
+            pygame.draw.rect(screen, (100, 100, 100), boxRect, 3)  
+
+            text_rect = quizWarning.get_rect(center=boxRect.center)
+            screen.blit(quizWarning, text_rect)
+
+            if pygame.time.get_ticks() - hintStartTime >= hintDuration:
+                theStemFound = False
+
 
 
         # Quiz box
@@ -344,8 +431,7 @@ while running:
                 feedback_surface = font.render(feedbackText, True, feedback_color)
                 screen.blit(feedback_surface, (120, 500))
 
-
-
+        
         # Game over check
         if player.gameOver(remainingTime):
             game_over = True
@@ -419,14 +505,12 @@ while running:
                 level_transition_active = False
 
 
-
-
-
     else:
         try:
             fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
         except:
             fancyFont = font
+
         gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
         gameOverText2 = fancyFont.render("Press 'Space' to play again", True, (255, 253, 208))
         screen.fill((0, 0, 0))
