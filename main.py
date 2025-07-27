@@ -7,11 +7,14 @@ from Question import Question, level1_questions, level2_questions, level3_questi
 import healthBar
 import plantBar
 import time
+import sounds
 
 # Initialize Pygame
 pygame.init()
 pygame.font.init()
 font = pygame.font.SysFont("Comic Sans MS", 32)
+pygame.mixer.init()
+sounds.play_music()
 
 # Time control variables
 clock = pygame.time.Clock()
@@ -157,6 +160,14 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        # Handle key presses for sounds
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                sounds.jump_sound.play()
+
+            if event.key == pygame.K_c:
+                sounds.coin_sound.play()
 
         # Quiz input
         if not game_over and quizActive and currentQuestion:
@@ -518,3 +529,4 @@ while running:
         screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
 
     pygame.display.flip()
+    pygame.mixer.music.stop() 
