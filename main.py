@@ -335,8 +335,13 @@ while running:
 
         elif moving:
             player.updateLocation(moveX, moveY, mapName)
-            if not sounds.walk_sound.get_num_channels():
-                sounds.walk_sound.play()
+            if moving:
+                if not pygame.mixer.Channel(1).get_busy():
+                    pygame.mixer.Channel(1).play(sounds.walk_sound, loops=-1)
+                    sounds.walk_sound.set_volume(0.3)
+                else:
+                    pygame.mixer.Channel(1).stop()
+
 
 
         # Keep player inside map
@@ -537,4 +542,4 @@ while running:
         screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
 
     pygame.display.flip()
-    pygame.mixer.music.stop() 
+    #Fpygame.mixer.music.stop() 
