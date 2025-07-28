@@ -111,6 +111,16 @@ class Player:
             walkableTiles = [self.darkGrass, self.theStem, self.darkSand]  
             solidTiles = [self.stone, self.water] 
         
+        elif mapName == "thirdMap":
+            walkableTiles = [self.darkGrass, self.darkSand, self.theStem]
+            solidTiles = [self.water, self.stone]
+
+        else:
+            walkableTiles = []
+            solidTiles = []
+
+
+        
         hitboxOffset = (self.size - self.hitboxSize) // 2
 
         # Math for the corners for the sprite
@@ -186,6 +196,8 @@ class Player:
          return currentTile == self.bushGrass or currentTile == self.crabGrass
         if mapName == "secondMap":
             return currentTile == self.darkSand
+        if mapName == "thirdMap":
+            return currentTile == self.darkSand or currentTile == self.theStem
     
     def addPoints(self, points):
         self.knowledgePoints += points
