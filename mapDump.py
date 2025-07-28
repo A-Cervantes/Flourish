@@ -166,6 +166,9 @@ class tileHandle():
                         tileObject = mapDump(imageVault2["theStem"], x * self.tileSize, y * self.tileSize, self.scale)
                     elif tileID == '4':
                         tileObject = mapDump(imageVault2["darkSand"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '7':
+                        tileObject = mapDump(imageVault2["darkSand"], x * self.tileSize, y * self.tileSize, self.scale)
+
                     
                     if tileObject:
                         tiles.append(tileObject)

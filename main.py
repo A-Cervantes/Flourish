@@ -263,6 +263,9 @@ while running:
                 canAnswer = True
                 if not sounds.secret_Stem_sound.get_num_channels():
                     sounds.secret_Stem_sound.play()
+        if hintStartTime is None:
+            hintStartTime = pygame.time.get_ticks()
+
 
 
         # Quiz activation
