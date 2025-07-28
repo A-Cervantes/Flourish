@@ -52,6 +52,10 @@ theStemFound = False
 tilesWalked = 0 
 tilesToPlant = 100
 
+won_game = False
+plant_win_time = None
+
+
 # Quiz variables
 currentLevel = 1
 questionIndex = 0
@@ -75,7 +79,8 @@ transition_start_time = 0
 startTileX = None
 startTileY = None
 
-mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
+mapName = "firstMap"
+mapCreation = tileHandle("Visuals/Maps/mainMap.csv", "firstMap")
 player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 healthBarObj = healthBar.healthBar(player)
@@ -219,8 +224,8 @@ while running:
         # Game over logic
         if game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             screen.fill((0, 0, 0))
-            mapName = "mainMap"
-            mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
+            mapName = "firstMap"
+            mapCreation = tileHandle("Visuals/Maps/mainMap.csv", "firstMap")
             player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
             endTime = time.time() + startTime
             healthBarObj = healthBar.healthBar(player)
@@ -236,6 +241,7 @@ while running:
             feedbackText = ""
             canPlant = False
             game_over = False
+            won_game = False
             
 
     keys = pygame.key.get_pressed()
@@ -364,12 +370,18 @@ while running:
         elif moving:
             player.updateLocation(moveX, moveY, mapName)
 
+        # Track sound time buffer
+        if 'lastMoveTime' not in globals():
+            lastMoveTime = time.time()
+
         if moving:
+            lastMoveTime = time.time()
             if not pygame.mixer.Channel(1).get_busy():
-                    pygame.mixer.Channel(1).set_volume(1.0)
-                    pygame.mixer.Channel(1).play(sounds.walk_sound, loops=-1)
-        else:
+                pygame.mixer.Channel(1).set_volume(1.0)
+                pygame.mixer.Channel(1).play(sounds.walk_sound, loops=-1)
+        elif time.time() - lastMoveTime > 0.25:
             pygame.mixer.Channel(1).stop()
+
 
         # Player Rendering Logic
         player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
@@ -522,11 +534,22 @@ while running:
                 sounds.game_Over_sound.play()
             game_over = True
 
+        # if player.plantsFullyGrowed >= 3 and not level_transition_active:
+        #     if not sounds.level_Up_sound.get_num_channels():
+        #         sounds.level_Up_sound.play()
+        #     level_transition_active = True
+        #     transition_start_time = pygame.time.get_ticks()
+        # After 3 fully grown plants
         if player.plantsFullyGrowed >= 3 and not level_transition_active:
-            if not sounds.level_Up_sound.get_num_channels():
-                sounds.level_Up_sound.play()
-            level_transition_active = True
-            transition_start_time = pygame.time.get_ticks()
+            if plant_win_time is None:
+                plant_win_time = pygame.time.get_ticks()
+            elif pygame.time.get_ticks() - plant_win_time > 1000:  # wait 1 second
+                if not sounds.level_Up_sound.get_num_channels():
+                    sounds.level_Up_sound.play()
+                level_transition_active = True
+                transition_start_time = pygame.time.get_ticks()
+                plant_win_time = None  # reset it
+
 
         if level_transition_active:
             elapsed = pygame.time.get_ticks() - transition_start_time
@@ -554,9 +577,11 @@ while running:
                     questions = level3_questions
                 else:
                     show_transition(screen, font, "You Win!", "Thanks for playing!")
-                    pygame.time.delay(4000)
-                    running = False
-                    break  
+                    pygame.time.delay(3000)
+                    won_game = True
+                    game_over = True
+                    level_transition_active = False
+               
 
                 # Reload map and player
                 mapCreation = tileHandle(f"Visuals/Maps/{mapName}.csv", mapName)
@@ -574,17 +599,22 @@ while running:
                 canPlant = False
                 endTime = time.time() + startTime
                 level_transition_active = False
-    else:
+    if game_over:
         try:
             fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
         except:
             fancyFont = font
 
-        gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
+        if won_game:
+            gameOverText = fancyFont.render("You Win!", True, (255, 253, 208))
+        else:
+            gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
+
         gameOverText2 = fancyFont.render("Press 'Space' to play again", True, (255, 253, 208))
         screen.fill((0, 0, 0))
-        screen.blit(gameOverText, (SCREEN_WIDTH // 2 - 180, SCREEN_HEIGHT // 2 - 80))
-        screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
+        screen.blit(gameOverText, (SCREEN_WIDTH // 2 - gameOverText.get_width() // 2, SCREEN_HEIGHT // 2 - 80))
+        screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - gameOverText2.get_width() // 2, SCREEN_HEIGHT // 2 - 10))
+
 
     pygame.display.flip()
     #Fpygame.mixer.music.stop() 
