@@ -196,6 +196,8 @@ class Player:
          return currentTile == self.bushGrass or currentTile == self.crabGrass
         if mapName == "secondMap":
             return currentTile == self.darkSand
+        if mapName == "thirdMap":
+            return currentTile == self.darkSand or currentTile == self.theStem
     
     def addPoints(self, points):
         self.knowledgePoints += points

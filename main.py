@@ -358,6 +358,15 @@ while running:
                     direction = "downDarksand"
                 elif direction == "up":
                     direction = "upDarksand"
+            elif mapName == "thirdMap":
+                if direction == "right":
+                    direction = "rightDarksand" 
+                elif direction == "left":
+                    direction = "leftDarksand"
+                elif direction == "down":
+                    direction = "downDarksand"
+                elif direction == "up":
+                    direction = "upDarksand"
 
         elif moving:
             player.updateLocation(moveX, moveY, mapName)
