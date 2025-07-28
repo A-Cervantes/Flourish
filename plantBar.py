@@ -4,9 +4,9 @@ import pygame
 class plantBar():
     def __init__(self, plantsQueued):
         self.progress = plantsQueued
-        self.width = 150
+        self.width = 170
         self.height = 30
-        self.x = 645
+        self.x = 628
         self.y = 560
 
     def draw(self, screen):

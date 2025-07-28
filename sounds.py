@@ -6,7 +6,6 @@ level_Up_sound = None
 game_Over_sound = None
 walk_sound = None
 
-
 def load_sounds():
     global secret_Stem_sound, level_Up_sound, game_Over_sound, walk_sound
 
@@ -22,5 +21,5 @@ def play_music():
     # Use mixer.music for long background music
     pygame.mixer.music.load('soundFiles/bg_music.wav')  
     pygame.mixer.music.set_volume(0.5)
-    pygame.mixer.music.play(-1)  # Loop forever
+    pygame.mixer.music.play(-1) 
     print("Playing music...")

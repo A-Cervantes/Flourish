@@ -24,10 +24,7 @@ class Plant:
                 # Cap at maximum growth
                 if self.growthLevel > self.maxGrowth:
                     self.growthLevel = self.maxGrowth
-                    
-                    
-
-    
+                        
     def is_fully_grown(self):
         return self.growthLevel >= self.maxGrowth
     

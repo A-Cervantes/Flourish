@@ -8,7 +8,7 @@ class Player:
         self.positionY = positionY
         self.speed = 100
         self.size = 32
-        self.hitboxSize = 1  
+        self.hitboxSize = 23
         self.health = initialHealth
 
         self.tileHandler = tileHandler        
@@ -115,12 +115,6 @@ class Player:
             walkableTiles = [self.darkGrass, self.darkSand, self.theStem]
             solidTiles = [self.water, self.stone]
 
-        else:
-            walkableTiles = []
-            solidTiles = []
-
-
-        
         hitboxOffset = (self.size - self.hitboxSize) // 2
 
         # Math for the corners for the sprite
@@ -211,7 +205,6 @@ class Player:
             return False
 
         if self.seedsCollected > 0:
-            # Get the current tile we are on
             centerX, centerY = self.getCenter()
             tileX = int(centerX // self.tileSize)
             tileY = int(centerY // self.tileSize)

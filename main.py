@@ -13,8 +13,10 @@ import sounds
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
-font = pygame.font.SysFont("Comic Sans MS", 32)
+font = pygame.font.SysFont("comicsansms", 32)
+smallFont = pygame.font.SysFont("comicsansms", 15)
 
+#Music Logic
 sounds.load_sounds()
 sounds.play_music()
 
@@ -33,7 +35,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Flourish Game")
 
 # Sprite attributes 
-PLAYER_SPEED = 80
+PLAYER_SPEED = 800
 PLAYER_HEALTH = 100
 PLAYER_POSITION_X = 100
 PLAYER_POSITION_Y = 100
@@ -48,7 +50,7 @@ justFullyGrown = []
 mapName = "firstMap"
 theStemFound = False
 tilesWalked = 0 
-tilesToPlant = 125
+tilesToPlant = 100
 
 # Quiz variables
 currentLevel = 1
@@ -61,34 +63,29 @@ showFeedback = False
 feedbackText = ""
 canPlant = False
 canAnswer = False
-showHint = False
 hintStartTime = None
-hintDuration = 1000
+hintDuration = 2000
+allowQuiz = False
+stemMessage = False
+stemMessageStartTime = None
 
 # Game state variables
 level_transition_active = False
 transition_start_time = 0
-
 startTileX = None
 startTileY = None
 
-
-
-
-# Initialize game objects
 mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
 player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 healthBarObj = healthBar.healthBar(player)
 plantBarObj = plantBar.plantBar(len(player.plantsQueue))
 
-
 try:
     playerImage = pygame.image.load("Visuals/Sprites/bird_right.png")
 except pygame.error:
     print("Image not found!")
     pygame.quit()
-
 
 def show_transition(screen, font, message1, message2):
     screen.fill((0, 0, 0))
@@ -100,8 +97,6 @@ def show_transition(screen, font, message1, message2):
 
     pygame.display.update()
     pygame.time.delay(3000)
-
-
 
 def handle_level_transition(nextLevel, nextMapFile, nextQuestion, mapWidth=800, mapHeight=600):
     global currentLevel, currentMap, mapCreation, player, currentQuestions, camera
@@ -129,6 +124,7 @@ def handle_level_transition(nextLevel, nextMapFile, nextQuestion, mapWidth=800, 
 
 while running:
     while introScreen:
+        
         screen.fill((0, 105, 62)) 
 
         intro_lines = [
@@ -145,18 +141,14 @@ while running:
 
         for i, line in enumerate(intro_lines):
             rendered_text = font.render(line, True, (255, 253, 208))
-            text_rect = rendered_text.get_rect(center=(SCREEN_WIDTH // 2, start_y + i * line_spacing))
-            screen.blit(rendered_text, text_rect)
+            textRect = rendered_text.get_rect(center=(SCREEN_WIDTH // 2, start_y + i * line_spacing))
+            screen.blit(rendered_text, textRect)
 
         pygame.display.flip()
 
+        startTileX = int(player.getCenter()[0]) // 32
+        startTileY = int(player.getCenter()[1]) // 32
 
-
-        print("This the amount of blocks I have walked!" + " --> "  + str(tilesWalked))
-        print("This is the players current tile " + f"({int(player.getCenter()[0]) // 32 }, {int(player.getCenter()[1]) // 32 } )")
-
-
-    
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -176,7 +168,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-
         # Quiz input
         if not game_over and quizActive and currentQuestion:
             if event.type == pygame.KEYDOWN:
@@ -189,14 +180,15 @@ while running:
                 elif event.key in [pygame.K_4, pygame.K_KP4]:
                     userAnswer = 3
                 elif event.key == pygame.K_RETURN and userAnswer is not None:
-
                     if currentQuestion.check_answer(userAnswer + 1):
                         if player.plantQueueFull():
                             feedbackText = "Queue is full! Can't plant more seeds."
                             canPlant = False
-                        else:
+                        elif allowQuiz:
                             feedbackText = "Correct! You can plant a seed."
                             canPlant = True
+                            tilesWalked = 0
+                            allowQuiz = False
                     else:
                         player.tookDamage(3)
                         feedbackText = "Incorrect. Try again next time."
@@ -214,7 +206,7 @@ while running:
                 if questionIndex >= len(questions):
                     #currentLevel += 1
                     questionIndex = 0
-            
+
             # Reset quiz state
             showFeedback = False
             quizActive = False
@@ -233,9 +225,7 @@ while running:
             endTime = time.time() + startTime
             healthBarObj = healthBar.healthBar(player)
             plantBarObj = plantBar.plantBar(len(player.plantsQueue))
-            print(str(len(player.plantsQueue)) + "This is the amount of plants that are in this ")
             justFullyGrown = []
-            print(len(justFullyGrown))
             currentLevel = 1
             questions = level1_questions
             questionIndex = 0
@@ -251,7 +241,7 @@ while running:
     keys = pygame.key.get_pressed()
     moveX = 0
     moveY = 0
-    direction = 'right'
+    direction = 'down'
     slowEffect = False
     if not game_over:
         if keys[pygame.K_w]:
@@ -271,19 +261,16 @@ while running:
             moving = True
             direction = 'right'
 
-        if player.onSecretRoot():
-                theStemFound = True
-                canAnswer = True
-                if not sounds.secret_Stem_sound.get_num_channels():
-                    sounds.secret_Stem_sound.play()
-        if hintStartTime is None:
-            hintStartTime = pygame.time.get_ticks()
-
-
-
+        if player.onSecretRoot() and mapName == "secondMap":
+            theStemFound = True
+            canAnswer = True
+            if not sounds.secret_Stem_sound.get_num_channels():
+                sounds.secret_Stem_sound.play()
+            if stemMessageStartTime is None and not stemMessage:
+                stemMessageStartTime = pygame.time.get_ticks()
 
         # Quiz activation
-        if keys[pygame.K_e] and not quizActive and mapName == "firstMap":
+        if keys[pygame.K_e] and not quizActive and mapName == "firstMap" and allowQuiz:
             if currentLevel == 1:
                 questions = level1_questions
             elif currentLevel == 2:
@@ -300,9 +287,7 @@ while running:
                 canPlant = False
             else:
                 print("No more questions for this level.")
-        elif keys[pygame.K_e] and not quizActive and mapName == "secondMap":
-            if player.onSecretRoot():
-                showHint = False
+        elif keys[pygame.K_e] and not quizActive and mapName == "secondMap" and allowQuiz:
             
             if canAnswer:
                 if currentLevel == 1:
@@ -321,13 +306,8 @@ while running:
                     canPlant = False
                 else:
                     print("No more questions for this level.")
-            else:
-                showHint = True
-                hintStartTime = pygame.time.get_ticks()
-        elif keys[pygame.K_e] and not quizActive and mapName == "thirdMap":
-            if player.onSecretRoot():
-                showHint = False
 
+        elif keys[pygame.K_e] and not quizActive and mapName == "thirdMap":
             if canAnswer:
                 if currentLevel == 3:
                     questions = level3_questions
@@ -341,19 +321,29 @@ while running:
                     canPlant = False
                 else:
                     print("No more questions for this level.")
-            else:
-                showHint = True
-                hintStartTime = pygame.time.get_ticks()
 
+        #Calculate Tiles Walked
+        currTileX = int(player.getCenter()[0]) // 32
+        currTileY = int(player.getCenter()[1]) // 32
 
-                
+        movedX = abs(currTileX - startTileX)
+        movedY = abs(currTileY - startTileY)
 
+        if (currTileX, currTileY) != (startTileX, startTileY):
+            tilesWalked += 1
+            startTileX, startTileY = currTileX, currTileY
+
+        if tilesWalked >= tilesToPlant:
+            allowQuiz = True
+
+        #SLow effect/ Animation logic
         slowEffect = player.checkTileInteractions(mapName)
-
-        # Player slow down logic
+    
         if slowEffect:
+
             player.updateLocation(moveX * 0.5, moveY * 0.5, mapName)
             player.tookDamage(4 * deltaTime)
+
             if mapName == "firstMap":
                 if direction == "right":
                     direction = "rightBush" 
@@ -363,7 +353,7 @@ while running:
                     direction = "downBush"
                 elif direction == "up":
                     direction = "upBush"
-            elif mapName == "secondMap":
+            else:
                 if direction == "right":
                     direction = "rightDarksand" 
                 elif direction == "left":
@@ -371,28 +361,18 @@ while running:
                 elif direction == "down":
                     direction = "downDarksand"
                 elif direction == "up":
-                    direction = "upDarksand"
-            elif mapName == "thirdMap":
-                if direction == "right":
-                    direction = "rightDarksand" 
-                elif direction == "left":
-                    direction = "leftDarksand"
-                elif direction == "down":
-                    direction = "downDarksand"
-                elif direction == "up":
-                    direction = "upDarksand"
-
+                    direction = "upDarksand"          
         elif moving:
             player.updateLocation(moveX, moveY, mapName)
-            if moving:
-                if not pygame.mixer.Channel(1).get_busy():
+
+        if moving:
+            if not pygame.mixer.Channel(1).get_busy():
+                    pygame.mixer.Channel(1).set_volume(1.0)
                     pygame.mixer.Channel(1).play(sounds.walk_sound, loops=-1)
-                else:
-                    pygame.mixer.Channel(1).stop()
+        else:
+            pygame.mixer.Channel(1).stop()
 
-
-
-        # Keep player inside map
+        # Player Rendering Logic
         player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
         player.positionY = max(0, min(player.positionY, mapCreation.mapHeight - player.size))
 
@@ -400,11 +380,9 @@ while running:
         
         player.updateAnimation(deltaTime, moving)
 
-        # Camera update
         playerCenter = player.getCenter()
         camera.update(playerCenter[0], playerCenter[1])
 
-        # Drawing
         mapCreation.drawMap(screen, camera.cameraX, camera.cameraY, SCREEN_WIDTH, SCREEN_HEIGHT)
         player.drawPlayer(screen, camera.cameraX, camera.cameraY)
 
@@ -412,24 +390,40 @@ while running:
         remainingTime = max(0, int(endTime - time.time()))
         minutes = remainingTime // 60
         seconds = remainingTime % 60
-        timer_text = f"{minutes:02}:{seconds:02}"
-        timerArt = font.render(timer_text, True, (255, 253, 208))
-        screen.blit(timerArt, (SCREEN_WIDTH - 120, 20))
+        timerText = f"{minutes:02}:{seconds:02}"
+        timerArt = font.render(timerText, True, (255, 253, 208))
+        screen.blit(timerArt, (SCREEN_WIDTH - 120, 10))
+
+        #Steps Walked
+        boxW2 = 173
+        boxH2 = 30
+        boxX2 = (SCREEN_WIDTH - boxW2) // 2 + 313
+        boxY2 = (SCREEN_HEIGHT - boxH2) // 2  + 233 
+        boxRect2 = pygame.Rect(boxX2, boxY2, boxW2, boxH2)
+
+        pygame.draw.rect(screen, (40,40,40), boxRect2)  
+        pygame.draw.rect(screen, (100, 100, 100), boxRect2, 3)  
+
+        tilesText = f"Tiles walked:{tilesWalked} / 100"
+        tileDisplay = smallFont.render(tilesText, True, (255, 253, 208))
+        screen.blit(tileDisplay, (SCREEN_WIDTH - 167, 520))
 
     
+        #Plant Growing Logic
         for plant in player.plantsQueue:
             plant.grow(deltaTime)
 
             currentGrowth = plant.getGrowthLevel()
+
             if plant.pastGrowthStage != currentGrowth:
-                    player.updatePlant(plant.position[0], plant.position[1], currentGrowth, mapName)
-                    plant.pastGrowthStage = currentGrowth
+                player.updatePlant(plant.position[0], plant.position[1], currentGrowth, mapName)
+                plant.pastGrowthStage = currentGrowth
 
             if plant.is_fully_grown():
                 justFullyGrown.append(plant) 
                 player.plantsGrowed()
                 
-        # Health & Plant bar
+
         plantBarObj.update(len(justFullyGrown))
         plantBarObj.draw(screen)
         healthBarObj.draw(screen)
@@ -437,31 +431,60 @@ while running:
         player.plantsQueue = [plant for plant in player.plantsQueue if not plant.is_fully_grown()]
 
 
-        if showHint:
-            smallFont = pygame.font.SysFont("Arial", 16)
+        #Hint Rendering Logic
+        if not quizActive and keys[pygame.K_e]:
 
-            invalidQuiz = "Find the Secret Stem to answer questions!"
-            quizWarning = smallFont.render(invalidQuiz, True, (255, 0, 0))
+            if mapName == "firstMap":
+                lowTiles = "You did not walk over 100 tiles yet!"
+                tileWarning = smallFont.render(lowTiles, True, (0, 255, 0))
 
-            boxW = 400
-            boxH = 80
-            boxX = (SCREEN_WIDTH - boxW) // 2 + 25
-            boxY = (SCREEN_HEIGHT - boxH) // 2  + 250 
-            boxRect = pygame.Rect(boxX, boxY, boxW, boxH)
+                boxW = 400
+                boxH = 80
+                boxX = (SCREEN_WIDTH - boxW) // 2 + 25
+                boxY = (SCREEN_HEIGHT - boxH) // 2  + 250 
+                boxRect = pygame.Rect(boxX, boxY, boxW, boxH)
 
-            pygame.draw.rect(screen, (40,40,40), boxRect)  # 
-            pygame.draw.rect(screen, (100, 100, 100), boxRect, 3)  
+                pygame.draw.rect(screen, (40,40,40), boxRect)
+                pygame.draw.rect(screen, (100, 100, 100), boxRect, 3)
 
-            text_rect = quizWarning.get_rect(center=boxRect.center)
-            screen.blit(quizWarning, text_rect)
+                tileHint = tileWarning.get_rect(center=boxRect.center)
+                screen.blit(tileWarning, tileHint)
+            
+            elif mapName == "secondMap" and not theStemFound:
+                invalidQuiz = "Find the Secret Stem to answer questions!"
+                quizWarning = smallFont.render(invalidQuiz, True, (255, 0, 0))
 
-            if hintStartTime is not None and pygame.time.get_ticks() - hintStartTime >= hintDuration:
-                showHint = False
+                boxW = 400
+                boxH = 80
+                boxX = (SCREEN_WIDTH - boxW) // 2 + 25
+                boxY = (SCREEN_HEIGHT - boxH) // 2  + 250 
+                boxRect = pygame.Rect(boxX, boxY, boxW, boxH)
 
-        if theStemFound:
-            smallFont = pygame.font.SysFont("Arial", 18)
+                pygame.draw.rect(screen, (40,40,40), boxRect)  
+                pygame.draw.rect(screen, (100, 100, 100), boxRect, 3)  
 
-            invalidQuiz = "You fond the Secret Stem! "
+                textRect = quizWarning.get_rect(center=boxRect.center)
+                screen.blit(quizWarning, textRect)
+                
+            elif mapName == "secondMap" and theStemFound:
+                lowTiles = "You did not walk over 100 tiles yet!"
+                tileWarning = smallFont.render(lowTiles, True, (0, 255, 0))
+
+                boxW = 400
+                boxH = 80
+                boxX = (SCREEN_WIDTH - boxW) // 2 + 25
+                boxY = (SCREEN_HEIGHT - boxH) // 2  + 250 
+                boxRect = pygame.Rect(boxX, boxY, boxW, boxH)
+
+                pygame.draw.rect(screen, (40,40,40), boxRect)
+                pygame.draw.rect(screen, (100, 100, 100), boxRect, 3)
+
+                tileHint = tileWarning.get_rect(center=boxRect.center)
+                screen.blit(tileWarning, tileHint)
+
+        if theStemFound and mapName == "secondMap" and not stemMessage:
+
+            invalidQuiz = "You found the Secret Stem! "
             quizWarning = smallFont.render(invalidQuiz, True, (0, 255, 0))
 
             boxW = 400
@@ -470,16 +493,14 @@ while running:
             boxY = (SCREEN_HEIGHT - boxH) // 2  + 250 
             boxRect = pygame.Rect(boxX, boxY, boxW, boxH)
 
-            pygame.draw.rect(screen, (40,40,40), boxRect)  # 
-            pygame.draw.rect(screen, (100, 100, 100), boxRect, 3)  
+            pygame.draw.rect(screen, (40,40,40), boxRect)
+            pygame.draw.rect(screen, (100, 100, 100), boxRect, 3)
 
-            text_rect = quizWarning.get_rect(center=boxRect.center)
-            screen.blit(quizWarning, text_rect)
+            textRect = quizWarning.get_rect(center=boxRect.center)
+            screen.blit(quizWarning, textRect)
 
-            if pygame.time.get_ticks() - hintStartTime >= hintDuration:
-                theStemFound = False
-
-
+            if stemMessageStartTime != None and pygame.time.get_ticks() - stemMessageStartTime >= hintDuration:
+                stemMessage = True
 
         # Quiz box
         if quizActive and currentQuestion:
@@ -496,40 +517,17 @@ while running:
                 feedback_surface = font.render(feedbackText, True, feedback_color)
                 screen.blit(feedback_surface, (120, 500))
 
-        
         # Game over check
         if player.gameOver(remainingTime):
             if not sounds.game_Over_sound.get_num_channels():
                 sounds.game_Over_sound.play()
             game_over = True
 
-        # if player.plantsFullyGrowed >= 3:
-        #     levelWon = True
-        #     screen.fill((0, 0, 0))
-        #     mapName = "secondMap"
-        #     mapCreation = tileHandle("Visuals/Maps/secondLevel.csv",mapName)
-        #     player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
-        #     endTime = time.time() + startTime
-        #     healthBarObj = healthBar.healthBar(player)
-        #     plantBarObj = plantBar.plantBar(len(player.plantsQueue))
-        #     justFullyGrown = []
-        #     currentLevel = 1
-        #     questionIndex = 0
-        #     quizActive = False
-        #     currentQuestion = None
-        #     userAnswer = None
-        #     showFeedback = False
-        #     feedbackText = ""
-        #     canPlant = False
-        #     game_over = False
         if player.plantsFullyGrowed >= 3 and not level_transition_active:
             if not sounds.level_Up_sound.get_num_channels():
                 sounds.level_Up_sound.play()
             level_transition_active = True
             transition_start_time = pygame.time.get_ticks()
-
-        
-
 
         if level_transition_active:
             elapsed = pygame.time.get_ticks() - transition_start_time
@@ -543,7 +541,6 @@ while running:
                 show_transition(screen, font, "Level Complete!", message)
 
             elif elapsed >= 3000:
-                # Only now increment the level and load the next
                 if currentLevel == 1:
                     currentLevel = 2
                     mapName = "secondMap"
@@ -573,12 +570,7 @@ while running:
                 feedbackText = ""
                 canPlant = False
                 endTime = time.time() + startTime
-
                 level_transition_active = False
-
-                
-
-
     else:
         try:
             fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)

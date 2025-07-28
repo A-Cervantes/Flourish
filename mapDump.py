@@ -31,8 +31,8 @@ class tileHandle():
         self.tileSize = self.baseTileSize * self.scale  
         self.tiles = self.tileDump(self.filename)
         self.numMap = self.readCSV(self.filename)
-        self.mapWidth = len(self.numMap[0]) * self.tileSize  # width in pixels
-        self.mapHeight = len(self.numMap) * self.tileSize    # height in pixels
+        self.mapWidth = len(self.numMap[0]) * self.tileSize  
+        self.mapHeight = len(self.numMap) * self.tileSize  
 
         
     def drawMap(self, screen, cameraX, cameraY, screenWidth, screenHeight):
@@ -104,19 +104,12 @@ class tileHandle():
                     elif tileID == '6':
                         tileObject = mapDump(imageVault["crabGrass"], x * self.tileSize, y * self.tileSize,  self.scale)
                     elif tileID == '7':
-                        tileObject = mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize,  self.scale)
-                    elif tileID == '0':
-                        tileObject = mapDump(imageVault["biggrass"], x * self.tileSize, y * self.tileSize,  self.scale)
-                    
-                    #Load the image into the tileGrid array, so that it can displayed
+                        tileObject = mapDump(imageVault["sandBlock"], x * self.tileSize, y * self.tileSize,  self.scale)       
                     if tileObject:
                         tiles.append(tileObject)
-                        self.tileGrid[y][x] = tileObject
-                        
+                        self.tileGrid[y][x] = tileObject                      
                     x += 1
                 y += 1
-
-            # The dimensions of the map   
             self.mapWidth = x * self.tileSize
             self.mapHeight = y * self.tileSize
             return tiles
@@ -143,12 +136,10 @@ class tileHandle():
                         
                     x += 1
                 y += 1
-
-            # The dimensions of the map   
+ 
             self.mapWidth = x * self.tileSize
             self.mapHeight = y * self.tileSize
             return tiles
-        # elif self.mapName == "thirdMap":
         elif self.mapName == "thirdMap":
             y = 0
             for row in mapArray:
