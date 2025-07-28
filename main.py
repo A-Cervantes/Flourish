@@ -7,16 +7,21 @@ from Question import Question, level1_questions, level2_questions, level3_questi
 import healthBar
 import plantBar
 import time
+import sounds
 
 # Initialize Pygame
 pygame.init()
+pygame.mixer.init()
 pygame.font.init()
 font = pygame.font.SysFont("Comic Sans MS", 32)
+
+sounds.load_sounds()
+sounds.play_music()
 
 # Time control variables
 clock = pygame.time.Clock()
 prevTime = time.time()
-startTime = 180
+startTime = 300
 endTime = prevTime + startTime
 
 # Screen dimensions
@@ -158,6 +163,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+
         # Quiz input
         if not game_over and quizActive and currentQuestion:
             if event.type == pygame.KEYDOWN:
@@ -208,6 +214,7 @@ while running:
         # Game over logic
         if game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             screen.fill((0, 0, 0))
+            mapName = "mainMap"
             mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
             player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
             endTime = time.time() + startTime
@@ -217,6 +224,7 @@ while running:
             justFullyGrown = []
             print(len(justFullyGrown))
             currentLevel = 1
+            questions = level1_questions
             questionIndex = 0
             quizActive = False
             currentQuestion = None
@@ -253,6 +261,12 @@ while running:
         if player.onSecretRoot():
                 theStemFound = True
                 canAnswer = True
+                if not sounds.secret_Stem_sound.get_num_channels():
+                    sounds.secret_Stem_sound.play()
+        if hintStartTime is None:
+            hintStartTime = pygame.time.get_ticks()
+
+
 
         # Quiz activation
         if keys[pygame.K_e] and not quizActive and mapName == "firstMap":
@@ -296,6 +310,27 @@ while running:
             else:
                 showHint = True
                 hintStartTime = pygame.time.get_ticks()
+        elif keys[pygame.K_e] and not quizActive and mapName == "thirdMap":
+            if player.onSecretRoot():
+                showHint = False
+
+            if canAnswer:
+                if currentLevel == 3:
+                    questions = level3_questions
+
+                if questionIndex < len(questions):
+                    currentQuestion = questions[questionIndex]
+                    quizActive = True
+                    userAnswer = None
+                    showFeedback = False
+                    feedbackText = ""
+                    canPlant = False
+                else:
+                    print("No more questions for this level.")
+            else:
+                showHint = True
+                hintStartTime = pygame.time.get_ticks()
+
 
                 
 
@@ -323,9 +358,25 @@ while running:
                     direction = "downDarksand"
                 elif direction == "up":
                     direction = "upDarksand"
+            elif mapName == "thirdMap":
+                if direction == "right":
+                    direction = "rightDarksand" 
+                elif direction == "left":
+                    direction = "leftDarksand"
+                elif direction == "down":
+                    direction = "downDarksand"
+                elif direction == "up":
+                    direction = "upDarksand"
 
         elif moving:
             player.updateLocation(moveX, moveY, mapName)
+            if moving:
+                if not pygame.mixer.Channel(1).get_busy():
+                    pygame.mixer.Channel(1).play(sounds.walk_sound, loops=-1)
+                else:
+                    pygame.mixer.Channel(1).stop()
+
+
 
         # Keep player inside map
         player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
@@ -390,7 +441,7 @@ while running:
             text_rect = quizWarning.get_rect(center=boxRect.center)
             screen.blit(quizWarning, text_rect)
 
-            if pygame.time.get_ticks() - hintStartTime >= hintDuration:
+            if hintStartTime is not None and pygame.time.get_ticks() - hintStartTime >= hintDuration:
                 showHint = False
 
         if theStemFound:
@@ -434,6 +485,8 @@ while running:
         
         # Game over check
         if player.gameOver(remainingTime):
+            if not sounds.game_Over_sound.get_num_channels():
+                sounds.game_Over_sound.play()
             game_over = True
 
         # if player.plantsFullyGrowed >= 3:
@@ -456,8 +509,13 @@ while running:
         #     canPlant = False
         #     game_over = False
         if player.plantsFullyGrowed >= 3 and not level_transition_active:
+            if not sounds.level_Up_sound.get_num_channels():
+                sounds.level_Up_sound.play()
             level_transition_active = True
             transition_start_time = pygame.time.get_ticks()
+
+        
+
 
         if level_transition_active:
             elapsed = pygame.time.get_ticks() - transition_start_time
@@ -518,3 +576,4 @@ while running:
         screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
 
     pygame.display.flip()
+    #Fpygame.mixer.music.stop() 

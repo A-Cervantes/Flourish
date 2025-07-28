@@ -29,7 +29,15 @@ def imageIndex():
         "darkSand": "Visuals/Blocks/darkSand.png",
         }
 
-    imageVault3 = {}
+    imageVault3 = {
+        "darkGrass": "Visuals/Blocks/darkGrass.png",
+        "darkSand": "Visuals/Blocks/darkSand.png",
+        "theStem": "Visuals/Blocks/theStem.png",
+        "water": "Visuals/Blocks/water.png",
+        "stone": "Visuals/Blocks/stone.png",
+        "normalStem" : "Visuals/Blocks/normalStem.png",
+        "sunFlower" : "Visuals/Blocks/sunFlower.png"
+    }
 
     sunFlowerVault = {
         "sunFlower1": "Visuals/Blocks/sunFlower1.png",
