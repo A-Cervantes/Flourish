@@ -77,7 +77,8 @@ transition_start_time = 0
 startTileX = None
 startTileY = None
 
-mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
+mapName = "firstMap"
+mapCreation = tileHandle("Visuals/Maps/mainMap.csv", "firstMap")
 player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 healthBarObj = healthBar.healthBar(player)
