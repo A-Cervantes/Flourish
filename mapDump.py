@@ -149,3 +149,31 @@ class tileHandle():
             self.mapHeight = y * self.tileSize
             return tiles
         # elif self.mapName == "thirdMap":
+        elif self.mapName == "thirdMap":
+            y = 0
+            for row in mapArray:
+                x = 0
+                for tileID in row:
+                    tileObject = None
+                    # You can reuse secondMap logic for now or make new tile IDs
+                    if tileID == '0':
+                        tileObject = mapDump(imageVault2["Water"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '1':
+                        tileObject = mapDump(imageVault2["Stone"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '2':
+                        tileObject = mapDump(imageVault2["darkGrass"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '3':
+                        tileObject = mapDump(imageVault2["theStem"], x * self.tileSize, y * self.tileSize, self.scale)
+                    elif tileID == '4':
+                        tileObject = mapDump(imageVault2["darkSand"], x * self.tileSize, y * self.tileSize, self.scale)
+                    
+                    if tileObject:
+                        tiles.append(tileObject)
+                        self.tileGrid[y][x] = tileObject
+                    
+                    x += 1
+                y += 1
+
+            self.mapWidth = x * self.tileSize
+            self.mapHeight = y * self.tileSize
+            return tiles

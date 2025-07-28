@@ -21,7 +21,7 @@ sounds.play_music()
 # Time control variables
 clock = pygame.time.Clock()
 prevTime = time.time()
-startTime = 180
+startTime = 300
 endTime = prevTime + startTime
 
 # Screen dimensions
@@ -214,6 +214,7 @@ while running:
         # Game over logic
         if game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             screen.fill((0, 0, 0))
+            mapName = "mainMap"
             mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
             player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
             endTime = time.time() + startTime
@@ -223,6 +224,7 @@ while running:
             justFullyGrown = []
             print(len(justFullyGrown))
             currentLevel = 1
+            questions = level1_questions
             questionIndex = 0
             quizActive = False
             currentQuestion = None
@@ -338,7 +340,6 @@ while running:
             if moving:
                 if not pygame.mixer.Channel(1).get_busy():
                     pygame.mixer.Channel(1).play(sounds.walk_sound, loops=-1)
-                    sounds.walk_sound.set_volume(0.3)
                 else:
                     pygame.mixer.Channel(1).stop()
 
