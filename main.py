@@ -52,6 +52,8 @@ theStemFound = False
 tilesWalked = 0 
 tilesToPlant = 100
 
+won_game = False
+
 # Quiz variables
 currentLevel = 1
 questionIndex = 0
@@ -236,6 +238,7 @@ while running:
             feedbackText = ""
             canPlant = False
             game_over = False
+            won_game = False
             
 
     keys = pygame.key.get_pressed()
@@ -560,8 +563,9 @@ while running:
                     questions = level3_questions
                 else:
                     show_transition(screen, font, "You Win!", "Thanks for playing!")
-                    pygame.time.delay(4000)
-                    running = False
+                    won_game = True
+                    game_over = True
+               
                     break  
 
                 # Reload map and player
@@ -580,17 +584,33 @@ while running:
                 canPlant = False
                 endTime = time.time() + startTime
                 level_transition_active = False
-    else:
-        try:
-            fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
-        except:
-            fancyFont = font
+        else:
+            try:
+                fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
+            except:
+                fancyFont = font
 
-        gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
-        gameOverText2 = fancyFont.render("Press 'Space' to play again", True, (255, 253, 208))
-        screen.fill((0, 0, 0))
-        screen.blit(gameOverText, (SCREEN_WIDTH // 2 - 180, SCREEN_HEIGHT // 2 - 80))
-        screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
+            if won_game:
+                gameOverText = fancyFont.render("You Win!", True, (255, 253, 208))
+                gameOverText2 = fancyFont.render("Press 'Space' to play again", True, (255, 253, 208))
+            else:
+                gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
+                gameOverText2 = fancyFont.render("Press 'Space' to play again", True, (255, 253, 208))
+
+            screen.fill((0, 0, 0))
+            screen.blit(gameOverText, (SCREEN_WIDTH // 2 - 180, SCREEN_HEIGHT // 2 - 80))
+            screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
+    #     try:
+    #         fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
+    #     except:
+    #         fancyFont = font
+
+    #     gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
+    #     gameOverText2 = fancyFont.render("Press 'Space' to play again", True, (255, 253, 208))
+    #     screen.fill((0, 0, 0))
+    #     screen.blit(gameOverText, (SCREEN_WIDTH // 2 - 180, SCREEN_HEIGHT // 2 - 80))
+    #     screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - 340, SCREEN_HEIGHT // 2 - 10))
+
 
     pygame.display.flip()
     #Fpygame.mixer.music.stop() 
