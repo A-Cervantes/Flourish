@@ -42,6 +42,8 @@ levelWon = False
 justFullyGrown = []
 mapName = "firstMap"
 theStemFound = False
+tilesWalked = 0 
+tilesToPlant = 125
 
 # Quiz variables
 currentLevel = 1
@@ -62,6 +64,10 @@ hintDuration = 1000
 level_transition_active = False
 transition_start_time = 0
 
+startTileX = None
+startTileY = None
+
+
 
 
 # Initialize game objects
@@ -70,6 +76,7 @@ player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 healthBarObj = healthBar.healthBar(player)
 plantBarObj = plantBar.plantBar(len(player.plantsQueue))
+
 
 try:
     playerImage = pygame.image.load("Visuals/Sprites/bird_right.png")
@@ -137,6 +144,12 @@ while running:
             screen.blit(rendered_text, text_rect)
 
         pygame.display.flip()
+
+
+
+        print("This the amount of blocks I have walked!" + " --> "  + str(tilesWalked))
+        print("This is the players current tile " + f"({int(player.getCenter()[0]) // 32 }, {int(player.getCenter()[1]) // 32 } )")
+
 
     
         for event in pygame.event.get():
@@ -253,6 +266,7 @@ while running:
         if player.onSecretRoot():
                 theStemFound = True
                 canAnswer = True
+
 
         # Quiz activation
         if keys[pygame.K_e] and not quizActive and mapName == "firstMap":
@@ -503,6 +517,8 @@ while running:
                 endTime = time.time() + startTime
 
                 level_transition_active = False
+
+                
 
 
     else:
