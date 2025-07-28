@@ -53,6 +53,8 @@ tilesWalked = 0
 tilesToPlant = 100
 
 won_game = False
+plant_win_time = None
+
 
 # Quiz variables
 currentLevel = 1
@@ -222,8 +224,8 @@ while running:
         # Game over logic
         if game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             screen.fill((0, 0, 0))
-            mapName = "mainMap"
-            mapCreation = tileHandle("Visuals/Maps/mainMap.csv", mapName)
+            mapName = "firstMap"
+            mapCreation = tileHandle("Visuals/Maps/mainMap.csv", "firstMap")
             player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
             endTime = time.time() + startTime
             healthBarObj = healthBar.healthBar(player)
@@ -532,11 +534,22 @@ while running:
                 sounds.game_Over_sound.play()
             game_over = True
 
+        # if player.plantsFullyGrowed >= 3 and not level_transition_active:
+        #     if not sounds.level_Up_sound.get_num_channels():
+        #         sounds.level_Up_sound.play()
+        #     level_transition_active = True
+        #     transition_start_time = pygame.time.get_ticks()
+        # After 3 fully grown plants
         if player.plantsFullyGrowed >= 3 and not level_transition_active:
-            if not sounds.level_Up_sound.get_num_channels():
-                sounds.level_Up_sound.play()
-            level_transition_active = True
-            transition_start_time = pygame.time.get_ticks()
+            if plant_win_time is None:
+                plant_win_time = pygame.time.get_ticks()
+            elif pygame.time.get_ticks() - plant_win_time > 1000:  # wait 1 second
+                if not sounds.level_Up_sound.get_num_channels():
+                    sounds.level_Up_sound.play()
+                level_transition_active = True
+                transition_start_time = pygame.time.get_ticks()
+                plant_win_time = None  # reset it
+
 
         if level_transition_active:
             elapsed = pygame.time.get_ticks() - transition_start_time
@@ -564,6 +577,7 @@ while running:
                     questions = level3_questions
                 else:
                     show_transition(screen, font, "You Win!", "Thanks for playing!")
+                    pygame.time.delay(3000)
                     won_game = True
                     game_over = True
                     level_transition_active = False
