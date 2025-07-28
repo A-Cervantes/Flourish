@@ -112,9 +112,9 @@ class Player:
             solidTiles = [self.stone, self.water] 
         
         elif mapName == "thirdMap":
-            walkableTiles = [self.darkGrass, self.theStem, self.darkSand]  # or customize
-            solidTiles = [self.stone, self.water]
-        
+            walkableTiles = [self.darkGrass, self.darkSand, self.theStem]
+            solidTiles = [self.water, self.stone]
+
         else:
             walkableTiles = []
             solidTiles = []
