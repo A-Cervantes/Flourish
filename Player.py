@@ -111,6 +111,16 @@ class Player:
             walkableTiles = [self.darkGrass, self.theStem, self.darkSand]  
             solidTiles = [self.stone, self.water] 
         
+        elif mapName == "thirdMap":
+            walkableTiles = [self.darkGrass, self.theStem, self.darkSand]  # or customize
+            solidTiles = [self.stone, self.water]
+        
+        else:
+            walkableTiles = []
+            solidTiles = []
+
+
+        
         hitboxOffset = (self.size - self.hitboxSize) // 2
 
         # Math for the corners for the sprite
