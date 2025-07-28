@@ -584,21 +584,21 @@ while running:
                 canPlant = False
                 endTime = time.time() + startTime
                 level_transition_active = False
+    if game_over:
+        try:
+            fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
+        except:
+            fancyFont = font
+
+        if won_game:
+            gameOverText = fancyFont.render("You Win!", True, (255, 253, 208))
         else:
-            try:
-                fancyFont = pygame.font.SysFont("Comic Sans MS", 48, bold=True)
-            except:
-                fancyFont = font
+            gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
 
-            if won_game:
-                gameOverText = fancyFont.render("You Win!", True, (255, 253, 208))
-            else:
-                gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
-
-            gameOverText2 = fancyFont.render("Press 'Space' to play again", True, (255, 253, 208))
-            screen.fill((0, 0, 0))
-            screen.blit(gameOverText, (SCREEN_WIDTH // 2 - gameOverText.get_width() // 2, SCREEN_HEIGHT // 2 - 80))
-            screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - gameOverText2.get_width() // 2, SCREEN_HEIGHT // 2 - 10))
+        gameOverText2 = fancyFont.render("Press 'Space' to play again", True, (255, 253, 208))
+        screen.fill((0, 0, 0))
+        screen.blit(gameOverText, (SCREEN_WIDTH // 2 - gameOverText.get_width() // 2, SCREEN_HEIGHT // 2 - 80))
+        screen.blit(gameOverText2, (SCREEN_WIDTH // 2 - gameOverText2.get_width() // 2, SCREEN_HEIGHT // 2 - 10))
 
 
     pygame.display.flip()

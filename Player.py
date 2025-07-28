@@ -114,6 +114,9 @@ class Player:
         elif mapName == "thirdMap":
             walkableTiles = [self.darkGrass, self.darkSand, self.theStem]
             solidTiles = [self.water, self.stone]
+        else:
+            raise ValueError(f"Unknown mapName '{mapName}' in canMoveTo()")
+
 
         hitboxOffset = (self.size - self.hitboxSize) // 2
 
