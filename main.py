@@ -364,12 +364,18 @@ while running:
         elif moving:
             player.updateLocation(moveX, moveY, mapName)
 
+        # Track sound time buffer
+        if 'lastMoveTime' not in globals():
+            lastMoveTime = time.time()
+
         if moving:
+            lastMoveTime = time.time()
             if not pygame.mixer.Channel(1).get_busy():
-                    pygame.mixer.Channel(1).set_volume(1.0)
-                    pygame.mixer.Channel(1).play(sounds.walk_sound, loops=-1)
-        else:
+                pygame.mixer.Channel(1).set_volume(1.0)
+                pygame.mixer.Channel(1).play(sounds.walk_sound, loops=-1)
+        elif time.time() - lastMoveTime > 0.25:
             pygame.mixer.Channel(1).stop()
+
 
         # Player Rendering Logic
         player.positionX = max(0, min(player.positionX, mapCreation.mapWidth - player.size))
