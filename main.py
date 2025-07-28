@@ -261,7 +261,7 @@ while running:
             moving = True
             direction = 'right'
 
-        if player.onSecretRoot() and mapName == "secondMap":
+        if player.onSecretRoot() and not mapName == "firstMap":
             theStemFound = True
             canAnswer = True
             if not sounds.secret_Stem_sound.get_num_channels():
@@ -288,7 +288,6 @@ while running:
             else:
                 print("No more questions for this level.")
         elif keys[pygame.K_e] and not quizActive and mapName == "secondMap" and allowQuiz:
-            
             if canAnswer:
                 if currentLevel == 1:
                     questions = level1_questions
@@ -307,7 +306,7 @@ while running:
                 else:
                     print("No more questions for this level.")
 
-        elif keys[pygame.K_e] and not quizActive and mapName == "thirdMap":
+        elif keys[pygame.K_e] and not quizActive and mapName == "thirdMap" and allowQuiz:
             if canAnswer:
                 if currentLevel == 3:
                     questions = level3_questions
@@ -342,7 +341,7 @@ while running:
         if slowEffect:
 
             player.updateLocation(moveX * 0.5, moveY * 0.5, mapName)
-            player.tookDamage(4 * deltaTime)
+            player.tookDamage(5 * deltaTime)
 
             if mapName == "firstMap":
                 if direction == "right":
@@ -450,7 +449,7 @@ while running:
                 tileHint = tileWarning.get_rect(center=boxRect.center)
                 screen.blit(tileWarning, tileHint)
             
-            elif mapName == "secondMap" and not theStemFound:
+            elif not mapName == "firstMap" and not theStemFound:
                 invalidQuiz = "Find the Secret Stem to answer questions!"
                 quizWarning = smallFont.render(invalidQuiz, True, (255, 0, 0))
 
@@ -466,9 +465,9 @@ while running:
                 textRect = quizWarning.get_rect(center=boxRect.center)
                 screen.blit(quizWarning, textRect)
                 
-            elif mapName == "secondMap" and theStemFound:
+            elif not mapName == "firstMap" and theStemFound:
                 lowTiles = "You did not walk over 100 tiles yet!"
-                tileWarning = smallFont.render(lowTiles, True, (0, 255, 0))
+                tileWarning = smallFont.render(lowTiles, True, (255, 0, 0))
 
                 boxW = 400
                 boxH = 80
@@ -482,7 +481,7 @@ while running:
                 tileHint = tileWarning.get_rect(center=boxRect.center)
                 screen.blit(tileWarning, tileHint)
 
-        if theStemFound and mapName == "secondMap" and not stemMessage:
+        if theStemFound and not mapName == "firstMap" and not stemMessage:
 
             invalidQuiz = "You found the Secret Stem! "
             quizWarning = smallFont.render(invalidQuiz, True, (0, 255, 0))
@@ -535,6 +534,8 @@ while running:
                 if currentLevel == 1:
                     message = "Great job! Moving to Level 2..."
                 elif currentLevel == 2:
+                    theStemFound = False
+                    canAnswer = False
                     message = "Awesome! Entering Level 3..."
                 else:
                     message = "You're a Flourish expert!"
@@ -543,17 +544,19 @@ while running:
             elif elapsed >= 3000:
                 if currentLevel == 1:
                     currentLevel = 2
+                    tilesWalked = 0
                     mapName = "secondMap"
                     questions = level2_questions
                 elif currentLevel == 2:
                     currentLevel = 3
+                    tilesWalked = 0 
                     mapName = "thirdMap"
                     questions = level3_questions
                 else:
                     show_transition(screen, font, "You Win!", "Thanks for playing!")
                     pygame.time.delay(4000)
                     running = False
-                    break  # or break if inside loop
+                    break  
 
                 # Reload map and player
                 mapCreation = tileHandle(f"Visuals/Maps/{mapName}.csv", mapName)
