@@ -408,7 +408,7 @@ while running:
             text_rect = quizWarning.get_rect(center=boxRect.center)
             screen.blit(quizWarning, text_rect)
 
-            if pygame.time.get_ticks() - hintStartTime >= hintDuration:
+            if hintStartTime is not None and pygame.time.get_ticks() - hintStartTime >= hintDuration:
                 showHint = False
 
         if theStemFound:
