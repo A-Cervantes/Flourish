@@ -310,6 +310,27 @@ while running:
             else:
                 showHint = True
                 hintStartTime = pygame.time.get_ticks()
+        elif keys[pygame.K_e] and not quizActive and mapName == "thirdMap":
+            if player.onSecretRoot():
+                showHint = False
+
+            if canAnswer:
+                if currentLevel == 3:
+                    questions = level3_questions
+
+                if questionIndex < len(questions):
+                    currentQuestion = questions[questionIndex]
+                    quizActive = True
+                    userAnswer = None
+                    showFeedback = False
+                    feedbackText = ""
+                    canPlant = False
+                else:
+                    print("No more questions for this level.")
+            else:
+                showHint = True
+                hintStartTime = pygame.time.get_ticks()
+
 
                 
 
