@@ -35,7 +35,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Flourish Game")
 
 # Sprite attributes 
-PLAYER_SPEED = 800
+PLAYER_SPEED = 80
 PLAYER_HEALTH = 100
 PLAYER_POSITION_X = 100
 PLAYER_POSITION_Y = 100
@@ -242,6 +242,11 @@ while running:
             canPlant = False
             game_over = False
             won_game = False
+            tilesWalked = 0
+            theStemFound = False
+            canAnswer = False
+            stemMessage = False
+            stemMessageStartTime = None
             
 
     keys = pygame.key.get_pressed()
@@ -559,6 +564,8 @@ while running:
                 elif currentLevel == 2:
                     theStemFound = False
                     canAnswer = False
+                    stemMessage = False
+                    stemMessageStartTime = None
                     message = "Awesome! Entering Level 3..."
                 else:
                     message = "You're a Flourish expert!"
