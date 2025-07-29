@@ -4,10 +4,12 @@ class Plant:
         self.growth_stage = 0  
         self.facts = []
         self.time = 0
+
         self.growthLevel = 0
         self.maxGrowth = 100  
         self.growthRate = 10  
         self.growthTimer = 0 
+
         self.TileX = TileX
         self.TileY = TileY
         self.position = (TileX, TileY)  
@@ -21,7 +23,6 @@ class Plant:
                 self.growthLevel += self.growthRate
                 self.growthTimer = 0 
                 
-                # Cap at maximum growth
                 if self.growthLevel > self.maxGrowth:
                     self.growthLevel = self.maxGrowth
                         

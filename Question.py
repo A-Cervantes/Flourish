@@ -24,7 +24,6 @@ class Question:
         return lines
 
     def render(self, font, surface, start_y=120, max_width=550, spacing=10, selected_choice=None):
-        # Render wrapped question text
         question_lines = self.wrap_text(self.question_text, font, max_width)
         y = start_y
         for line in question_lines:

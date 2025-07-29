@@ -35,7 +35,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Flourish Game")
 
 # Sprite attributes 
-PLAYER_SPEED = 80
+PLAYER_SPEED = 800
 PLAYER_HEALTH = 100
 PLAYER_POSITION_X = 100
 PLAYER_POSITION_Y = 100
@@ -51,10 +51,8 @@ mapName = "firstMap"
 theStemFound = False
 tilesWalked = 0 
 tilesToPlant = 100
-
-won_game = False
-plant_win_time = None
-
+wonGame = False
+plantWinTime = None
 
 # Quiz variables
 currentLevel = 1
@@ -115,15 +113,12 @@ def handle_level_transition(nextLevel, nextMapFile, nextQuestion, mapWidth=800, 
     # Load new map
     mapCreation = tileHandle(f"Visuals/Maps/{nextMapFile}.csv", nextMapFile)
 
-    # Reset player
     player = Player(PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_HEALTH, mapCreation)
     player.plantsFullyGrowed = 0
     player.plantsQueue = []
 
-    # Load new questions
     currentQuestions = nextQuestion
 
-    # Reset camera
     camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, mapCreation.mapWidth, mapCreation.mapHeight)
 
 
@@ -209,7 +204,6 @@ while running:
                     player.plantSeed(mapName, quiz_correct=True)
                 questionIndex += 1
                 if questionIndex >= len(questions):
-                    #currentLevel += 1
                     questionIndex = 0
 
             # Reset quiz state
@@ -241,14 +235,13 @@ while running:
             feedbackText = ""
             canPlant = False
             game_over = False
-            won_game = False
+            wonGame = False
             tilesWalked = 0
             theStemFound = False
             canAnswer = False
             stemMessage = False
             stemMessageStartTime = None
             
-
     keys = pygame.key.get_pressed()
     moveX = 0
     moveY = 0
@@ -518,7 +511,6 @@ while running:
             if stemMessageStartTime != None and pygame.time.get_ticks() - stemMessageStartTime >= hintDuration:
                 stemMessage = True
 
-        # Quiz box
         if quizActive and currentQuestion:
             # Draw background quiz box
             pygame.draw.rect(screen, (30, 30, 30), (100, 100, 600, 450))
@@ -539,21 +531,16 @@ while running:
                 sounds.game_Over_sound.play()
             game_over = True
 
-        # if player.plantsFullyGrowed >= 3 and not level_transition_active:
-        #     if not sounds.level_Up_sound.get_num_channels():
-        #         sounds.level_Up_sound.play()
-        #     level_transition_active = True
-        #     transition_start_time = pygame.time.get_ticks()
         # After 3 fully grown plants
         if player.plantsFullyGrowed >= 3 and not level_transition_active:
-            if plant_win_time is None:
-                plant_win_time = pygame.time.get_ticks()
-            elif pygame.time.get_ticks() - plant_win_time > 1000:  # wait 1 second
+            if plantWinTime is None:
+                plantWinTime = pygame.time.get_ticks()
+            elif pygame.time.get_ticks() - plantWinTime > 1000:  # wait 1 second
                 if not sounds.level_Up_sound.get_num_channels():
                     sounds.level_Up_sound.play()
                 level_transition_active = True
                 transition_start_time = pygame.time.get_ticks()
-                plant_win_time = None  # reset it
+                plantWinTime = None  # reset it
 
 
         if level_transition_active:
@@ -585,7 +572,7 @@ while running:
                 else:
                     show_transition(screen, font, "You Win!", "Thanks for playing!")
                     pygame.time.delay(3000)
-                    won_game = True
+                    wonGame = True
                     game_over = True
                     level_transition_active = False
                
@@ -612,7 +599,7 @@ while running:
         except:
             fancyFont = font
 
-        if won_game:
+        if wonGame:
             gameOverText = fancyFont.render("You Win!", True, (255, 253, 208))
         else:
             gameOverText = fancyFont.render("Game Over!", True, (255, 253, 208))
@@ -624,4 +611,3 @@ while running:
 
 
     pygame.display.flip()
-    #Fpygame.mixer.music.stop() 

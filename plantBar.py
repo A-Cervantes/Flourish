@@ -1,4 +1,3 @@
-
 import pygame
 
 class plantBar():
@@ -10,8 +9,7 @@ class plantBar():
         self.y = 560
 
     def draw(self, screen):
-
-        progressPercentage = self.progress / 3.0 #
+        progressPercentage = self.progress / 3.0 
         progressBarWidth = int(self.width * progressPercentage)
 
         pygame.draw.rect(screen, (255, 0, 0), (self.x, self.y, self.width, self.height))

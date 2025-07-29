@@ -6,7 +6,6 @@ class Player:
     def __init__(self, positionX, positionY, initialHealth, tileHandler):
         self.positionX = positionX
         self.positionY = positionY
-        self.speed = 100
         self.size = 32
         self.hitboxSize = 23
         self.health = initialHealth
@@ -18,7 +17,7 @@ class Player:
         self.level = 1
         self.knowledgePoints = 0
         self.gardenSlots = 1
-        self.seedsCollected = 1000;
+        self.seedsCollected = 4;
         self.plants = [] 
         self.completed_tasks = []
         self.unlocked_facts = []
@@ -34,7 +33,7 @@ class Player:
         self.crabGrass = '6'
         self.sandBlock = '7'
 
-        #Second World Block
+        #Second & Third World Blocks
         self.water = '0'
         self.stone = '1'
         self.darkGrass = '2'
@@ -100,8 +99,6 @@ class Player:
         elif self.canMoveTo(oldX, newY, mapName):
             self.positionY = newY
 
-
-    #Need to add logic for other maps, add canMoveTo the world as paramerter
     def canMoveTo(self, x, y, mapName):
         if mapName == "firstMap":
             walkableTiles = [self.bushGrass,self.grass,self.seed,self.crabGrass,self.sandBlock]  
@@ -116,7 +113,6 @@ class Player:
             solidTiles = [self.water, self.stone]
         else:
             raise ValueError(f"Unknown mapName '{mapName}' in canMoveTo()")
-
 
         hitboxOffset = (self.size - self.hitboxSize) // 2
 
@@ -162,14 +158,10 @@ class Player:
     def addPlant(self, plant):
         if len(self.plants) < self.gardenSlots:
             self.plants.append(plant)
-        else:
-            print("Garden full! Level up to grow more plants.")
-
 
     def levelUp(self):
         self.level += 1
         self.gardenSlots += 1
-        print(f"Leveled up to {self.level}! You can now grow {self.gardenSlots} plants.")
 
     def displayStats(self):
         print(f"Level: {self.level}")
@@ -198,7 +190,6 @@ class Player:
     
     def addPoints(self, points):
         self.knowledgePoints += points
-        print(f"Knowledge Points increased by {points}. Total: {self.knowledgePoints}")
     
     def plantSeed(self, mapName, quiz_correct=False):
         if not quiz_correct:
@@ -213,10 +204,8 @@ class Player:
             tileY = int(centerY // self.tileSize)
             
             if self.tileMap[tileY][tileX] != self.grass:
-                print("You cannot plant here :{")
                 return False
             else:
-                print("You can plant here!")
                 if self.addToPlantQueue(tileX, tileY):
                     self.tileMap[tileY][tileX] = self.seed
                     
@@ -227,18 +216,12 @@ class Player:
                         newTile = mapDump(sunFlowerVaultDark["sunFlowerDark1"], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
                         self.tileHandler.tileGrid[tileY][tileX] = newTile
 
-                    
                     self.seedsCollected -= 1
-                    print(f"Added plant to queue. Queue size: {len(self.plantsQueue)}")
-                    for plant in self.plantsQueue:
-                        print(plant.getPosition())
-
+                
                     return True
                 else:
-                    print("Failed to add to plant queue")
                     return False
-        
-        print("No seeds available!")
+                
         return False
 
     def gameOver(self, remainingTime):
@@ -283,10 +266,5 @@ class Player:
         else:
             sunKey = f"sunFlowerDark{growth // 10}"
             if sunKey in sunFlowerVaultDark:
-                newTile = mapDump(
-                    sunFlowerVaultDark[sunKey],
-                    tileX * self.tileSize,
-                    tileY * self.tileSize,
-                    self.tileHandler.scale
-                )
+                newTile = mapDump(sunFlowerVaultDark[sunKey], tileX * self.tileSize, tileY * self.tileSize, self.tileHandler.scale)
                 self.tileHandler.tileGrid[tileY][tileX] = newTile
